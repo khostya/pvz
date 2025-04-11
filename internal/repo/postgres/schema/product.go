@@ -8,22 +8,24 @@ import (
 
 type (
 	Product struct {
-		schemaModel
-		ID          uuid.UUID `db:"id"`
-		Type        string    `db:"type"`
-		PvzID       uuid.UUID `db:"pvz_id"`
-		ReceptionID uuid.UUID `db:"reception_id"`
+		ID          uuid.UUID `db:"products.id"`
+		Type        string    `db:"products.type"`
+		ReceptionID uuid.UUID `db:"products.reception_id"`
+		DateTime    time.Time `db:"products.date_time"`
+	}
+
+	NullableProduct struct {
+		ID          *uuid.UUID `db:"products.id"`
+		Type        *string    `db:"products.type"`
+		ReceptionID *uuid.UUID `db:"products.reception_id"`
+		DateTime    *time.Time `db:"products.date_time"`
 	}
 )
 
 func NewProduct(d *domain.Product) *Product {
 	return &Product{
-		schemaModel: schemaModel{
-			CreatedAt: time.Now(),
-		},
 		ID:          d.ID,
 		Type:        string(d.Type),
-		PvzID:       d.PvzID,
 		ReceptionID: d.ReceptionID,
 	}
 }
@@ -31,9 +33,8 @@ func NewProduct(d *domain.Product) *Product {
 func NewDomainProduct(d *Product) *domain.Product {
 	return &domain.Product{
 		ID:          d.ID,
-		DateTime:    d.CreatedAt,
+		DateTime:    d.DateTime,
 		Type:        domain.ProductType(d.Type),
-		PvzID:       d.PvzID,
 		ReceptionID: d.ReceptionID,
 	}
 }
@@ -42,10 +43,16 @@ func (Product) TableName() string {
 	return "products"
 }
 
+func (p Product) InsertColumns() []string {
+	return []string{"id", "type", "reception_id", "date_time"}
+}
+
 func (p Product) Columns() []string {
-	return []string{"id", "type", "pvz_id", "reception_id", "created_at", "updated_at", "deleted_at"}
+	return []string{"products.id as \"products.id\"", "products.type as \"products.type\"",
+		"products.reception_id as \"products.reception_id\"",
+		"products.date_time as \"products.date_time\""}
 }
 
 func (p Product) Values() []any {
-	return []any{p.ID, p.Type, p.PvzID, p.ReceptionID, p.CreatedAt, p.UpdatedAt, p.DeletedAt}
+	return []any{p.ID, p.Type, p.ReceptionID, p.DateTime}
 }

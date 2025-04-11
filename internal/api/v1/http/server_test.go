@@ -19,7 +19,6 @@ var (
 		ID:          uuid.New(),
 		DateTime:    time.Now(),
 		Type:        domain.ProductTypeShoes,
-		PvzID:       uuid.New(),
 		ReceptionID: uuid.New(),
 	}
 

@@ -45,11 +45,13 @@ func (s *Server) Start() error {
 
 	errorChan := make(chan error)
 	go func() {
+		defer close(errorChan)
 		err := s.grpc.Serve(lis)
 		if err != nil {
 			errorChan <- err
 		}
 	}()
+	s.err = errorChan
 
 	go func(ctx context.Context) {
 		defer lis.Close()

@@ -14,6 +14,8 @@ import (
 )
 
 func TestProduct_PostReceptions(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name   string
 		input  *api.PostReceptionsJSONBody
@@ -70,11 +72,11 @@ func TestProduct_PostReceptions(t *testing.T) {
 			name:   "reception pvz error",
 			input:  input,
 			status: http.StatusInternalServerError,
-			res:    api.Error{Message: ErrOops.Error()},
+			res:    api.Error{Message: errOops.Error()},
 			mockFn: func(test test, m mocks) {
 				m.reception.EXPECT().Create(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(nil, ErrOops)
+					Return(nil, errOops)
 			},
 			role: domain.UserRoleModerator,
 		},
@@ -105,6 +107,8 @@ func TestProduct_PostReceptions(t *testing.T) {
 }
 
 func TestProduct_PvzPvzIdCloseLastReception(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name   string
 		input  openapi_types.UUID
@@ -158,11 +162,11 @@ func TestProduct_PvzPvzIdCloseLastReception(t *testing.T) {
 			name:   "reception pvz error",
 			input:  input,
 			status: http.StatusInternalServerError,
-			res:    api.Error{Message: ErrOops.Error()},
+			res:    api.Error{Message: errOops.Error()},
 			mockFn: func(test test, m mocks) {
 				m.reception.EXPECT().CloseLastReception(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(nil, ErrOops)
+					Return(nil, errOops)
 			},
 			role: domain.UserRoleModerator,
 		},

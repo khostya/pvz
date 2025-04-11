@@ -65,7 +65,7 @@ func TestReceptionUseCase_Create(t *testing.T) {
 			wantErr:   nil,
 			reception: &domain.Reception{ID: uuid.New()},
 			mockFn: func(test test, m receptionMocks) {
-				m.receptionRepo.EXPECT().GetFirstByStatus(gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(test.reception, repoerr.ErrNotFound)
 				m.receptionRepo.EXPECT().Create(gomock.Any(), gomock.Any()).
@@ -89,7 +89,7 @@ func TestReceptionUseCase_Create(t *testing.T) {
 			wantErr:   domain.ErrPreviousReceptionIsNotClosed,
 			reception: nil,
 			mockFn: func(test test, m receptionMocks) {
-				m.receptionRepo.EXPECT().GetFirstByStatus(gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(nil, nil)
 				runRepeatableReadAndUnwrap(m)
@@ -101,7 +101,7 @@ func TestReceptionUseCase_Create(t *testing.T) {
 			wantErr:   ErrReceptionOops,
 			reception: nil,
 			mockFn: func(test test, m receptionMocks) {
-				m.receptionRepo.EXPECT().GetFirstByStatus(gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(nil, ErrReceptionOops)
 				runRepeatableReadAndUnwrap(m)
@@ -113,7 +113,7 @@ func TestReceptionUseCase_Create(t *testing.T) {
 			wantErr:   ErrReceptionOops,
 			reception: &domain.Reception{ID: uuid.New()},
 			mockFn: func(test test, m receptionMocks) {
-				m.receptionRepo.EXPECT().GetFirstByStatus(gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(test.reception, repoerr.ErrNotFound)
 				m.receptionRepo.EXPECT().Create(gomock.Any(), gomock.Any()).
@@ -146,11 +146,12 @@ func TestReceptionUseCase_CloseLastReception(t *testing.T) {
 	t.Parallel()
 
 	type test struct {
-		name      string
-		input     dto.CloseLastReceptionParam
-		reception *domain.Reception
-		mockFn    func(test test, m receptionMocks)
-		wantErr   error
+		name            string
+		input           dto.CloseLastReceptionParam
+		reception       *domain.Reception
+		mockFn          func(test test, m receptionMocks)
+		wantErr         error
+		closedReception *domain.Reception
 	}
 
 	input := dto.CloseLastReceptionParam{
@@ -161,17 +162,18 @@ func TestReceptionUseCase_CloseLastReception(t *testing.T) {
 	ctx := context.Background()
 	tests := []test{
 		{
-			name:      "ok",
-			input:     input,
-			wantErr:   nil,
-			reception: &domain.Reception{ID: uuid.New()},
+			name:            "ok",
+			input:           input,
+			wantErr:         nil,
+			reception:       &domain.Reception{ID: uuid.New()},
+			closedReception: &domain.Reception{ID: uuid.New()},
 			mockFn: func(test test, m receptionMocks) {
-				m.receptionRepo.EXPECT().GetFirstByStatus(gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(test.reception, nil)
-				m.receptionRepo.EXPECT().UpdateLastReceptionStatus(gomock.Any(), gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().UpdateReceptionStatusByID(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(test.reception, nil)
+					Return(test.closedReception, nil)
 				runRepeatableReadAndUnwrap(m)
 			},
 		},
@@ -187,7 +189,7 @@ func TestReceptionUseCase_CloseLastReception(t *testing.T) {
 			input:   input,
 			wantErr: domain.ErrReceptionNotFound,
 			mockFn: func(test test, m receptionMocks) {
-				m.receptionRepo.EXPECT().GetFirstByStatus(gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(test.reception, repoerr.ErrNotFound)
 				runRepeatableReadAndUnwrap(m)
@@ -197,28 +199,30 @@ func TestReceptionUseCase_CloseLastReception(t *testing.T) {
 			name:      "error reception already closed",
 			input:     input,
 			wantErr:   domain.ErrReceptionAlreadyClosed,
-			reception: nil,
+			reception: &domain.Reception{ID: uuid.New()},
 			mockFn: func(test test, m receptionMocks) {
-				m.receptionRepo.EXPECT().GetFirstByStatus(gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(test.reception, nil)
-				m.receptionRepo.EXPECT().UpdateLastReceptionStatus(gomock.Any(), gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().UpdateReceptionStatusByID(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(test.reception, repoerr.ErrNotFound)
+					Return(test.closedReception, repoerr.ErrNotFound)
 				runRepeatableReadAndUnwrap(m)
 			},
 		},
 		{
-			name:    "error update last reception status",
-			input:   input,
-			wantErr: ErrReceptionOops,
+			name:            "error update last reception status",
+			input:           input,
+			wantErr:         ErrReceptionOops,
+			reception:       &domain.Reception{ID: uuid.New()},
+			closedReception: &domain.Reception{ID: uuid.New()},
 			mockFn: func(test test, m receptionMocks) {
-				m.receptionRepo.EXPECT().GetFirstByStatus(gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(test.reception, nil)
-				m.receptionRepo.EXPECT().UpdateLastReceptionStatus(gomock.Any(), gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().UpdateReceptionStatusByID(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(nil, ErrReceptionOops)
+					Return(test.closedReception, ErrReceptionOops)
 				runRepeatableReadAndUnwrap(m)
 			},
 		},
@@ -237,7 +241,7 @@ func TestReceptionUseCase_CloseLastReception(t *testing.T) {
 
 			actual, err := useCase.CloseLastReception(ctx, tt.input)
 			require.Equal(t, tt.wantErr, err)
-			require.Equal(t, tt.reception, actual)
+			require.Equal(t, tt.closedReception, actual)
 		})
 	}
 }
@@ -266,7 +270,7 @@ func TestReceptionUseCase_DeleteLastReception(t *testing.T) {
 			wantErr:   nil,
 			reception: &domain.Reception{ID: uuid.New()},
 			mockFn: func(test test, m receptionMocks) {
-				m.receptionRepo.EXPECT().GetFirstByStatus(gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(test.reception, nil)
 				m.productRepo.EXPECT().DeleteLastByDateTime(gomock.Any(), gomock.Any()).
@@ -281,7 +285,7 @@ func TestReceptionUseCase_DeleteLastReception(t *testing.T) {
 			wantErr:   ErrReceptionOops,
 			reception: &domain.Reception{ID: uuid.New()},
 			mockFn: func(test test, m receptionMocks) {
-				m.receptionRepo.EXPECT().GetFirstByStatus(gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(test.reception, ErrReceptionOops)
 				runRepeatableReadAndUnwrap(m)
@@ -293,7 +297,7 @@ func TestReceptionUseCase_DeleteLastReception(t *testing.T) {
 			wantErr:   ErrReceptionOops,
 			reception: &domain.Reception{ID: uuid.New()},
 			mockFn: func(test test, m receptionMocks) {
-				m.receptionRepo.EXPECT().GetFirstByStatus(gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(test.reception, nil)
 				m.productRepo.EXPECT().DeleteLastByDateTime(gomock.Any(), gomock.Any()).

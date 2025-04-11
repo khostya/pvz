@@ -22,8 +22,8 @@ type UseCase struct {
 type (
 	receptionRepo interface {
 		Create(ctx context.Context, reception *domain.Reception) (*domain.Reception, error)
-		GetFirstByStatus(ctx context.Context, status domain.ReceptionStatus) (*domain.Reception, error)
-		UpdateLastReceptionStatus(ctx context.Context, id uuid.UUID, status domain.ReceptionStatus) (*domain.Reception, error)
+		GetFirstByStatusAndPVZId(ctx context.Context, status domain.ReceptionStatus, pvzID uuid.UUID) (*domain.Reception, error)
+		UpdateReceptionStatusByID(ctx context.Context, id uuid.UUID, status domain.ReceptionStatus) (*domain.Reception, error)
 	}
 
 	productRepo interface {
@@ -57,7 +57,7 @@ func (u *UseCase) Create(ctx context.Context, param dto.CreateReceptionParam) (*
 
 	var reception *domain.Reception
 	err := u.tm.RunRepeatableRead(ctx, func(ctx context.Context) error {
-		_, err := u.receptionRepo.GetFirstByStatus(ctx, domain.ReceptionStatusInProgress)
+		_, err := u.receptionRepo.GetFirstByStatusAndPVZId(ctx, domain.ReceptionStatusInProgress, param.PvzID)
 		if err == nil {
 			return domain.ErrPreviousReceptionIsNotClosed
 		}
@@ -82,9 +82,9 @@ func (u *UseCase) CloseLastReception(ctx context.Context, param dto.CloseLastRec
 		return nil, domain.ErrEmployeeOnly
 	}
 
-	var reception *domain.Reception
+	var result *domain.Reception
 	err := u.tm.RunRepeatableRead(ctx, func(ctx context.Context) error {
-		_, err := u.receptionRepo.GetFirstByStatus(ctx, domain.ReceptionStatusInProgress)
+		reception, err := u.receptionRepo.GetFirstByStatusAndPVZId(ctx, domain.ReceptionStatusInProgress, param.PvzID)
 		if errors.Is(err, repoerr.ErrNotFound) {
 			return domain.ErrReceptionNotFound
 		}
@@ -92,14 +92,14 @@ func (u *UseCase) CloseLastReception(ctx context.Context, param dto.CloseLastRec
 			return err
 		}
 
-		reception, err = u.receptionRepo.UpdateLastReceptionStatus(ctx, param.PvzID, domain.ReceptionStatusClose)
+		result, err = u.receptionRepo.UpdateReceptionStatusByID(ctx, reception.ID, domain.ReceptionStatusClose)
 		if errors.Is(err, repoerr.ErrNotFound) {
 			return domain.ErrReceptionAlreadyClosed
 		}
 		return err
 	})
 
-	return reception, u.tm.Unwrap(err)
+	return result, u.tm.Unwrap(err)
 }
 
 func (u *UseCase) DeleteLastProduct(ctx context.Context, param dto.DeleteLastReceptionParam) error {
@@ -108,7 +108,7 @@ func (u *UseCase) DeleteLastProduct(ctx context.Context, param dto.DeleteLastRec
 	}
 
 	err := u.tm.RunRepeatableRead(ctx, func(ctx context.Context) error {
-		_, err := u.receptionRepo.GetFirstByStatus(ctx, domain.ReceptionStatusInProgress)
+		_, err := u.receptionRepo.GetFirstByStatusAndPVZId(ctx, domain.ReceptionStatusInProgress, param.PvzID)
 		if err != nil {
 			return err
 		}

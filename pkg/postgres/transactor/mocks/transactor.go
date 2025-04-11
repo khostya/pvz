@@ -15,7 +15,7 @@ import (
 
 	pgx "github.com/jackc/pgx/v5"
 	pgconn "github.com/jackc/pgx/v5/pgconn"
-	transactor "github.com/khostya/pvz/pkg/postgres/transactor"
+	exec "github.com/khostya/pvz/pkg/postgres/exec"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -44,10 +44,10 @@ func (m *MockTransactor) EXPECT() *MockTransactorMockRecorder {
 }
 
 // GetQueryEngine mocks base method.
-func (m *MockTransactor) GetQueryEngine(ctx context.Context) transactor.QueryEngine {
+func (m *MockTransactor) GetQueryEngine(ctx context.Context) exec.QueryEngine {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetQueryEngine", ctx)
-	ret0, _ := ret[0].(transactor.QueryEngine)
+	ret0, _ := ret[0].(exec.QueryEngine)
 	return ret0
 }
 
@@ -99,89 +99,6 @@ func (mr *MockTransactorMockRecorder) Unwrap(err any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Unwrap", reflect.TypeOf((*MockTransactor)(nil).Unwrap), err)
 }
 
-// MockQueryEngine is a mock of QueryEngine interface.
-type MockQueryEngine struct {
-	ctrl     *gomock.Controller
-	recorder *MockQueryEngineMockRecorder
-	isgomock struct{}
-}
-
-// MockQueryEngineMockRecorder is the mock recorder for MockQueryEngine.
-type MockQueryEngineMockRecorder struct {
-	mock *MockQueryEngine
-}
-
-// NewMockQueryEngine creates a new mock instance.
-func NewMockQueryEngine(ctrl *gomock.Controller) *MockQueryEngine {
-	mock := &MockQueryEngine{ctrl: ctrl}
-	mock.recorder = &MockQueryEngineMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockQueryEngine) EXPECT() *MockQueryEngineMockRecorder {
-	return m.recorder
-}
-
-// Exec mocks base method.
-func (m *MockQueryEngine) Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, sql}
-	for _, a := range args {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Exec", varargs...)
-	ret0, _ := ret[0].(pgconn.CommandTag)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Exec indicates an expected call of Exec.
-func (mr *MockQueryEngineMockRecorder) Exec(ctx, sql any, args ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, sql}, args...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exec", reflect.TypeOf((*MockQueryEngine)(nil).Exec), varargs...)
-}
-
-// Query mocks base method.
-func (m *MockQueryEngine) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, sql}
-	for _, a := range args {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "Query", varargs...)
-	ret0, _ := ret[0].(pgx.Rows)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Query indicates an expected call of Query.
-func (mr *MockQueryEngineMockRecorder) Query(ctx, sql any, args ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, sql}, args...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Query", reflect.TypeOf((*MockQueryEngine)(nil).Query), varargs...)
-}
-
-// QueryRow mocks base method.
-func (m *MockQueryEngine) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
-	m.ctrl.T.Helper()
-	varargs := []any{ctx, sql}
-	for _, a := range args {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "QueryRow", varargs...)
-	ret0, _ := ret[0].(pgx.Row)
-	return ret0
-}
-
-// QueryRow indicates an expected call of QueryRow.
-func (mr *MockQueryEngineMockRecorder) QueryRow(ctx, sql any, args ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, sql}, args...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryRow", reflect.TypeOf((*MockQueryEngine)(nil).QueryRow), varargs...)
-}
-
 // MockQueryEngineProvider is a mock of QueryEngineProvider interface.
 type MockQueryEngineProvider struct {
 	ctrl     *gomock.Controller
@@ -207,10 +124,10 @@ func (m *MockQueryEngineProvider) EXPECT() *MockQueryEngineProviderMockRecorder 
 }
 
 // GetQueryEngine mocks base method.
-func (m *MockQueryEngineProvider) GetQueryEngine(ctx context.Context) transactor.QueryEngine {
+func (m *MockQueryEngineProvider) GetQueryEngine(ctx context.Context) exec.QueryEngine {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetQueryEngine", ctx)
-	ret0, _ := ret[0].(transactor.QueryEngine)
+	ret0, _ := ret[0].(exec.QueryEngine)
 	return ret0
 }
 
@@ -218,4 +135,102 @@ func (m *MockQueryEngineProvider) GetQueryEngine(ctx context.Context) transactor
 func (mr *MockQueryEngineProviderMockRecorder) GetQueryEngine(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetQueryEngine", reflect.TypeOf((*MockQueryEngineProvider)(nil).GetQueryEngine), ctx)
+}
+
+// MockPool is a mock of Pool interface.
+type MockPool struct {
+	ctrl     *gomock.Controller
+	recorder *MockPoolMockRecorder
+	isgomock struct{}
+}
+
+// MockPoolMockRecorder is the mock recorder for MockPool.
+type MockPoolMockRecorder struct {
+	mock *MockPool
+}
+
+// NewMockPool creates a new mock instance.
+func NewMockPool(ctrl *gomock.Controller) *MockPool {
+	mock := &MockPool{ctrl: ctrl}
+	mock.recorder = &MockPoolMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockPool) EXPECT() *MockPoolMockRecorder {
+	return m.recorder
+}
+
+// BeginTx mocks base method.
+func (m *MockPool) BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BeginTx", ctx, txOptions)
+	ret0, _ := ret[0].(pgx.Tx)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BeginTx indicates an expected call of BeginTx.
+func (mr *MockPoolMockRecorder) BeginTx(ctx, txOptions any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BeginTx", reflect.TypeOf((*MockPool)(nil).BeginTx), ctx, txOptions)
+}
+
+// Exec mocks base method.
+func (m *MockPool) Exec(ctx context.Context, sql string, args ...any) (pgconn.CommandTag, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, sql}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Exec", varargs...)
+	ret0, _ := ret[0].(pgconn.CommandTag)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Exec indicates an expected call of Exec.
+func (mr *MockPoolMockRecorder) Exec(ctx, sql any, args ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, sql}, args...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exec", reflect.TypeOf((*MockPool)(nil).Exec), varargs...)
+}
+
+// Query mocks base method.
+func (m *MockPool) Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, sql}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Query", varargs...)
+	ret0, _ := ret[0].(pgx.Rows)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Query indicates an expected call of Query.
+func (mr *MockPoolMockRecorder) Query(ctx, sql any, args ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, sql}, args...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Query", reflect.TypeOf((*MockPool)(nil).Query), varargs...)
+}
+
+// QueryRow mocks base method.
+func (m *MockPool) QueryRow(ctx context.Context, sql string, args ...any) pgx.Row {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, sql}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "QueryRow", varargs...)
+	ret0, _ := ret[0].(pgx.Row)
+	return ret0
+}
+
+// QueryRow indicates an expected call of QueryRow.
+func (mr *MockPoolMockRecorder) QueryRow(ctx, sql any, args ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, sql}, args...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryRow", reflect.TypeOf((*MockPool)(nil).QueryRow), varargs...)
 }

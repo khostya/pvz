@@ -9,6 +9,8 @@ services:
       JWT_SIGNING_KEY: ${JWT_SIGNING_KEY}
     ports:
       - "8080:8080"
+      - "3000:3000"
+      - "9000:9000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -19,6 +21,40 @@ services:
     networks:
       - service
       - postgres
+
+  migrations:
+    build:
+      context: ../
+      dockerfile: ./build/migrations.Dockerfile
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    volumes:
+      - ./../migrations:/migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: [ "goose", "-dir", "/migrations", "postgres", "${DATABASE_URL}", "up" ]
+    restart: "on-failure"
+    networks:
+      - postgres
+
+  swagger:
+    build:
+      context: ../
+      dockerfile: ./build/docs.Dockerfile
+    container_name: swagger
+    environment:
+      API_POST: localhost:8080
+    ports:
+      - "2000:2000"
+    depends_on:
+      pvz:
+        condition: service_started
+    volumes:
+      - ./../config:/config
+      - ./../api/v1/swagger:/api/v1/swagger
+    networks:
+      - service
 
   postgres:
     image: postgres:17
@@ -38,22 +74,6 @@ services:
       timeout: 10s
       retries: 5
       start_period: 10s
-    networks:
-      - postgres
-
-  migrations:
-    build:
-      context: ../
-      dockerfile: ./build/migrations.Dockerfile
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-    volumes:
-      - ./../migrations:/migrations
-    depends_on:
-      postgres:
-        condition: service_healthy
-    command: [ "goose", "-dir", "/migrations", "postgres", "${DATABASE_URL}", "up" ]
-    restart: "on-failure"
     networks:
       - postgres
 

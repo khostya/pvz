@@ -46,14 +46,6 @@ func get[T any](ctx context.Context, key string) (T, bool) {
 	return v, ok
 }
 
-func EchoGetIsDummy(ctx echo.Context) (bool, bool) {
-	return eGet[bool](ctx, isDummy)
-}
-
-func EchoGetUserID(ctx echo.Context) (uuid.UUID, bool) {
-	return eGet[uuid.UUID](ctx, userID)
-}
-
 func EchoGetRole(ctx echo.Context) (domain.Role, bool) {
 	return eGet[domain.Role](ctx, role)
 }

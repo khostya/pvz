@@ -19,7 +19,7 @@ func TestManager(t *testing.T) {
 		token, err := manager.GenerateDummyToken(domain.UserRoleEmployee)
 		require.NoError(t, err)
 
-		assert(t, nil, string(domain.UserRoleEmployee), true, manager, token)
+		assert(t, nil, domain.UserRoleEmployee, true, manager, token)
 	})
 
 	t.Run("ok token", func(t *testing.T) {
@@ -32,11 +32,11 @@ func TestManager(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		assert(t, &id, string(domain.UserRoleEmployee), false, manager, token)
+		assert(t, &id, domain.UserRoleEmployee, false, manager, token)
 	})
 }
 
-func assert(t *testing.T, userID *uuid.UUID, role string, isDummy bool, manager *Manager, token domain.Token) {
+func assert(t *testing.T, userID *uuid.UUID, role domain.Role, isDummy bool, manager *Manager, token domain.Token) {
 	ctx := context.Background()
 
 	ctx, err := manager.ParseToken(ctx, string(token))

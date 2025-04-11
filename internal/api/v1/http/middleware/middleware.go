@@ -22,23 +22,15 @@ type manager interface {
 	ParseToken(ctx context.Context, token string) (context.Context, error)
 }
 type Authenticator struct {
-	manager   manager
-	isDiscard bool
+	manager manager
 }
 
 func NewAuthenticator(manager manager) *Authenticator {
 	return &Authenticator{manager: manager}
 }
 
-func NewDiscardAuthenticator() *Authenticator {
-	return &Authenticator{manager: nil, isDiscard: true}
-}
-
 func (a *Authenticator) authenticatorFunc() openapi3filter.AuthenticationFunc {
 	return func(ctx context.Context, input *openapi3filter.AuthenticationInput) error {
-		if a.isDiscard {
-			return nil
-		}
 		return authenticate(a.manager, ctx, input)
 	}
 }

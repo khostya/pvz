@@ -14,6 +14,8 @@ import (
 )
 
 func TestProduct_PostPvz(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name   string
 		input  *api.PostPvzJSONRequestBody
@@ -77,11 +79,11 @@ func TestProduct_PostPvz(t *testing.T) {
 			name:   "create pvz error",
 			input:  input,
 			status: http.StatusInternalServerError,
-			res:    api.Error{Message: ErrOops.Error()},
+			res:    api.Error{Message: errOops.Error()},
 			mockFn: func(test test, m mocks) {
 				m.pvz.EXPECT().Create(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(nil, ErrOops)
+					Return(nil, errOops)
 			},
 			role: domain.UserRoleModerator,
 		},
@@ -112,6 +114,8 @@ func TestProduct_PostPvz(t *testing.T) {
 }
 
 func TestProduct_GetPvz(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name   string
 		input  api.GetPvzParams
@@ -121,30 +125,62 @@ func TestProduct_GetPvz(t *testing.T) {
 	}
 
 	input := api.GetPvzParams{}
+	pvzResponse := []getPvzResponse{
+		{
+			Pvz: api.PVZ{
+				Id:               &pvz.ID,
+				City:             api.PVZCity(pvz.City),
+				RegistrationDate: &pvz.RegistrationDate,
+			},
+			Receptions: []receptions{
+				{
+					Reception: toHttpReception(&reception),
+					Products:  []api.Product{toHttpProduct(&product)},
+				},
+			},
+		},
+	}
 	tests := []test{
 		{
 			name:   "ok",
 			input:  input,
 			status: http.StatusOK,
-			res: []getPvzResponse{
-				{
-					Pvz: api.PVZ{
-						Id:               &pvz.ID,
-						City:             api.PVZCity(pvz.City),
-						RegistrationDate: &pvz.RegistrationDate,
-					},
-					Receptions: []receptions{
-						{
-							Reception: toHttpReception(&reception),
-							Products:  []api.Product{toHttpProduct(&product)},
-						},
-					},
-				},
-			},
+			res:    pvzResponse,
 			mockFn: func(test test, m mocks) {
+				m.getPvzResponseCache.EXPECT().Get(gomock.Any()).
+					Times(1).
+					Return(nil, false)
 				m.pvz.EXPECT().GetPvz(gomock.Any(), gomock.Any()).
 					Times(1).
 					Return([]*domain.PVZ{&pvz}, nil)
+				m.getPvzResponseCache.EXPECT().Put(gomock.Any(), test.res).
+					Times(1).
+					Return()
+			},
+		},
+		{
+			name:   "cache hit",
+			input:  input,
+			status: http.StatusOK,
+			res:    pvzResponse,
+			mockFn: func(test test, m mocks) {
+				m.getPvzResponseCache.EXPECT().Get(gomock.Any()).
+					Times(1).
+					Return(test.res, true)
+			},
+		},
+		{
+			name:   "err get pvz",
+			input:  input,
+			status: http.StatusInternalServerError,
+			res:    api.Error{Message: errOops.Error()},
+			mockFn: func(test test, m mocks) {
+				m.getPvzResponseCache.EXPECT().Get(gomock.Any()).
+					Times(1).
+					Return(nil, false)
+				m.pvz.EXPECT().GetPvz(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(nil, errOops)
 			},
 		},
 	}

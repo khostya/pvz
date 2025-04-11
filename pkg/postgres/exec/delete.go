@@ -4,10 +4,9 @@ import (
 	"context"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/khostya/pvz/pkg/postgres/repoerr"
-	pgxtransactor "github.com/khostya/pvz/pkg/postgres/transactor"
 )
 
-func Delete(ctx context.Context, query sq.Sqlizer, db pgxtransactor.QueryEngine) error {
+func Delete(ctx context.Context, query sq.Sqlizer, db QueryEngine) error {
 	rawQuery, args, err := query.ToSql()
 	if err != nil {
 		return err

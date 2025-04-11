@@ -29,7 +29,7 @@ func (r ProductRepo) Create(ctx context.Context, product *domain.Product) (*doma
 	record := schema.NewProduct(product)
 
 	query := sq.Insert(schema.Product{}.TableName()).
-		Columns(record.Columns()...).
+		Columns(record.InsertColumns()...).
 		Values(record.Values()...).
 		PlaceholderFormat(sq.Dollar).
 		Suffix(fmt.Sprintf("RETURNING %s", strings.Join(record.Columns(), ", ")))
@@ -64,7 +64,7 @@ func (r ProductRepo) DeleteLastByDateTime(ctx context.Context, receptionID uuid.
 	lastProductByCreatedAt := sq.Select("p.id").
 		From(schema.Product{}.TableName() + " AS p").
 		Where(sq.Eq{"p.reception_id": receptionID}).
-		OrderBy("p.created_at DESC").
+		OrderBy("p.date_time desc").
 		Limit(1)
 
 	lastProductByCreatedAtSQL, args, err := lastProductByCreatedAt.ToSql()

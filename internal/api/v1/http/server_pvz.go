@@ -1,10 +1,12 @@
 package http
 
 import (
+	"encoding/json"
 	"github.com/google/uuid"
 	api "github.com/khostya/pvz/internal/api/v1/http/server"
 	"github.com/khostya/pvz/internal/domain"
 	"github.com/khostya/pvz/internal/dto"
+	"github.com/khostya/pvz/internal/metrics"
 	"github.com/khostya/pvz/pkg/appctx"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -13,7 +15,7 @@ import (
 
 type (
 	receptions struct {
-		Products  []api.Product `json:"receptions,omitempty"`
+		Products  []api.Product `json:"products,omitempty"`
 		Reception api.Reception `json:"reception,omitempty"`
 	}
 
@@ -24,6 +26,16 @@ type (
 )
 
 func (s Server) GetPvz(eCtx echo.Context, params api.GetPvzParams) error {
+	keyBytes, err := json.Marshal(params)
+	if err != nil {
+		return WriteError(eCtx, http.StatusInternalServerError, err.Error())
+	}
+
+	key := string(keyBytes)
+	if v, ok := s.getPvzResponseCache.Get(key); ok {
+		return eCtx.JSON(http.StatusOK, v)
+	}
+
 	ctx := eCtx.Request().Context()
 
 	pvzList, err := s.pvz.GetPvz(ctx, dto.GetPvzParam{
@@ -53,6 +65,7 @@ func (s Server) GetPvz(eCtx echo.Context, params api.GetPvzParams) error {
 		res = append(res, resp)
 	}
 
+	s.getPvzResponseCache.Put(key, res)
 	return eCtx.JSON(http.StatusOK, res)
 }
 
@@ -93,6 +106,7 @@ func (s Server) PostPvz(eCtx echo.Context) error {
 		return WriteError(eCtx, http.StatusInternalServerError, err.Error())
 	}
 
+	metrics.IncCreatedPVZ()
 	return eCtx.JSON(http.StatusCreated, toHttpPVZ(pvz))
 }
 

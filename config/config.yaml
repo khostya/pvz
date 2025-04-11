@@ -1,4 +1,9 @@
-env: prod
+app:
+  name: pvz
+  env: prod
+
+cache:
+  pvz_list_ttl: 10m
 
 api:
   http:
@@ -6,9 +11,11 @@ api:
     read_timeout: 5s
     write_timeout: 5s
     idle_timeout: 3m
-    max_header_bytes: 65000
+
   grpc:
     port: 3000
+  prometheus:
+    port: 9000
 
 swagger:
   port: 2000
@@ -19,6 +26,6 @@ auth:
 
 postgres:
   max_open_conns: 40
-  max_idle_conns: 10
+  min_idle_conns: 10
   conn_max_idle_time: 5m
   conn_max_lifetime: 10m

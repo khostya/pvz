@@ -57,19 +57,19 @@ func (mr *MockPvzMockRecorder) Create(ctx, param any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockPvz)(nil).Create), ctx, param)
 }
 
-// GetAllPvzs mocks base method.
-func (m *MockPvz) GetAllPvzs(ctx context.Context) ([]*domain.PVZ, error) {
+// GetAllPvzList mocks base method.
+func (m *MockPvz) GetAllPvzList(ctx context.Context) ([]*domain.PVZ, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllPvzs", ctx)
+	ret := m.ctrl.Call(m, "GetAllPvzList", ctx)
 	ret0, _ := ret[0].([]*domain.PVZ)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetAllPvzs indicates an expected call of GetAllPvzs.
-func (mr *MockPvzMockRecorder) GetAllPvzs(ctx any) *gomock.Call {
+// GetAllPvzList indicates an expected call of GetAllPvzList.
+func (mr *MockPvzMockRecorder) GetAllPvzList(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllPvzs", reflect.TypeOf((*MockPvz)(nil).GetAllPvzs), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllPvzList", reflect.TypeOf((*MockPvz)(nil).GetAllPvzList), ctx)
 }
 
 // GetPvz mocks base method.

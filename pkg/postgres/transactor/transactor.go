@@ -5,8 +5,7 @@ import (
 	"context"
 	"errors"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/khostya/pvz/pkg/postgres/exec"
 )
 
 const key = "tx"
@@ -17,25 +16,24 @@ type (
 		RunRepeatableRead(ctx context.Context, fx func(ctxTX context.Context) error) error
 		RunReadCommited(ctx context.Context, fx func(ctxTX context.Context) error) error
 		Unwrap(err error) error
-		GetQueryEngine(ctx context.Context) QueryEngine
-	}
-
-	QueryEngine interface {
-		Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error)
-		Exec(ctx context.Context, sql string, args ...interface{}) (pgconn.CommandTag, error)
-		QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
+		GetQueryEngine(ctx context.Context) exec.QueryEngine
 	}
 
 	QueryEngineProvider interface {
-		GetQueryEngine(ctx context.Context) QueryEngine
+		GetQueryEngine(ctx context.Context) exec.QueryEngine
+	}
+
+	Pool interface {
+		exec.QueryEngine
+		BeginTx(ctx context.Context, txOptions pgx.TxOptions) (pgx.Tx, error)
 	}
 
 	TransactionManager struct {
-		pool *pgxpool.Pool
+		pool Pool
 	}
 )
 
-func NewTransactionManager(pool *pgxpool.Pool) *TransactionManager {
+func NewTransactionManager(pool Pool) *TransactionManager {
 	return &TransactionManager{pool}
 }
 
@@ -87,8 +85,8 @@ func (tm *TransactionManager) Unwrap(err error) error {
 	return transactionError.Inner
 }
 
-func (tm *TransactionManager) GetQueryEngine(ctx context.Context) QueryEngine {
-	tx, ok := ctx.Value(key).(QueryEngine)
+func (tm *TransactionManager) GetQueryEngine(ctx context.Context) exec.QueryEngine {
+	tx, ok := ctx.Value(key).(exec.QueryEngine)
 	if ok && tx != nil {
 		return tx
 	}

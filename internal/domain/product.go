@@ -16,7 +16,6 @@ type (
 		ID          uuid.UUID   `json:"id"`
 		DateTime    time.Time   `json:"dateTime"`
 		Type        ProductType `json:"type"`
-		PvzID       uuid.UUID   `json:"pvzId"`
 		ReceptionID uuid.UUID   `json:"receptionId"`
 	}
 )

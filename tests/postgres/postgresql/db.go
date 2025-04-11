@@ -21,7 +21,7 @@ func NewFromEnv() *DBPool {
 		panic("TEST_DATABASE_URL isn`t set")
 	}
 
-	pool, err := postgres.NewPool(context.Background(), url)
+	pool, err := postgres.NewPoolFromURL(context.Background(), url)
 	if err != nil {
 		panic(err)
 	}

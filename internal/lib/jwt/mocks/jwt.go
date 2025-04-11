@@ -88,10 +88,10 @@ func (mr *MockmanagerMockRecorder) GetIsDummyFromCtx(ctx any) *gomock.Call {
 }
 
 // GetRoleFromCtx mocks base method.
-func (m *Mockmanager) GetRoleFromCtx(ctx context.Context) (string, bool) {
+func (m *Mockmanager) GetRoleFromCtx(ctx context.Context) (domain.Role, bool) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetRoleFromCtx", ctx)
-	ret0, _ := ret[0].(string)
+	ret0, _ := ret[0].(domain.Role)
 	ret1, _ := ret[1].(bool)
 	return ret0, ret1
 }

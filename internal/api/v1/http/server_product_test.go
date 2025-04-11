@@ -14,6 +14,8 @@ import (
 )
 
 func TestProduct_PostProducts(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name  string
 		input *api.PostProductsJSONBody
@@ -73,11 +75,11 @@ func TestProduct_PostProducts(t *testing.T) {
 			name:   "create product error",
 			input:  input,
 			status: http.StatusInternalServerError,
-			res:    api.Error{Message: ErrOops.Error()},
+			res:    api.Error{Message: errOops.Error()},
 			mockFn: func(test test, m mocks) {
 				m.product.EXPECT().Create(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(nil, ErrOops)
+					Return(nil, errOops)
 			},
 			role: domain.UserRoleModerator,
 		},
@@ -107,6 +109,8 @@ func TestProduct_PostProducts(t *testing.T) {
 }
 
 func TestProduct_PostPvzPvzIdDeleteLastProduct(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name  string
 		input openapi_types.UUID
@@ -158,11 +162,11 @@ func TestProduct_PostPvzPvzIdDeleteLastProduct(t *testing.T) {
 			name:   "create product error",
 			input:  input,
 			status: http.StatusInternalServerError,
-			res:    api.Error{Message: ErrOops.Error()},
+			res:    api.Error{Message: errOops.Error()},
 			mockFn: func(test test, m mocks) {
 				m.reception.EXPECT().DeleteLastProduct(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(ErrOops)
+					Return(errOops)
 			},
 			role: domain.UserRoleModerator,
 		},

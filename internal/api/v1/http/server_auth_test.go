@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	api "github.com/khostya/pvz/internal/api/v1/http/server"
+	mock_cache "github.com/khostya/pvz/internal/cache/mocks"
 	"github.com/khostya/pvz/internal/domain"
 	mock_auth "github.com/khostya/pvz/internal/usecase/auth/mocks"
 	mock_product "github.com/khostya/pvz/internal/usecase/product/mocks"
@@ -20,36 +21,42 @@ import (
 )
 
 var (
-	ErrOops = errors.New("oops error")
+	errOops = errors.New("oops error")
+	e       = echo.New()
 )
 
 type mocks struct {
-	product   *mock_product.MockProduct
-	auth      *mock_auth.MockAuth
-	pvz       *mock_pvz.MockPvz
-	reception *mock_reception.MockReception
+	product             *mock_product.MockProduct
+	auth                *mock_auth.MockAuth
+	pvz                 *mock_pvz.MockPvz
+	reception           *mock_reception.MockReception
+	getPvzResponseCache *mock_cache.MockCache[string, []getPvzResponse]
 }
 
 func newMocks(t *testing.T) mocks {
 	ctrl := gomock.NewController(t)
 	return mocks{
-		product:   mock_product.NewMockProduct(ctrl),
-		auth:      mock_auth.NewMockAuth(ctrl),
-		pvz:       mock_pvz.NewMockPvz(ctrl),
-		reception: mock_reception.NewMockReception(ctrl),
+		product:             mock_product.NewMockProduct(ctrl),
+		auth:                mock_auth.NewMockAuth(ctrl),
+		pvz:                 mock_pvz.NewMockPvz(ctrl),
+		reception:           mock_reception.NewMockReception(ctrl),
+		getPvzResponseCache: mock_cache.NewMockCache[string, []getPvzResponse](ctrl),
 	}
 }
 
 func NewMockServer(m mocks) *Server {
 	return NewServer(Deps{
-		Reception: m.reception,
-		Auth:      m.auth,
-		Product:   m.product,
-		Pvz:       m.pvz,
+		Reception:           m.reception,
+		Auth:                m.auth,
+		Product:             m.product,
+		Pvz:                 m.pvz,
+		GetPvzResponseCache: m.getPvzResponseCache,
 	})
 }
 
 func TestAuth_PostDummyLogin(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name   string
 		input  *api.PostDummyLoginJSONBody
@@ -82,11 +89,11 @@ func TestAuth_PostDummyLogin(t *testing.T) {
 			input:  input,
 			token:  "",
 			status: http.StatusInternalServerError,
-			res:    api.Error{Message: ErrOops.Error()},
+			res:    api.Error{Message: errOops.Error()},
 			mockFn: func(test test, m mocks) {
 				m.auth.EXPECT().DummyLogin(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(domain.Token(""), ErrOops)
+					Return(domain.Token(""), errOops)
 			},
 		},
 	}
@@ -104,6 +111,7 @@ func TestAuth_PostDummyLogin(t *testing.T) {
 			actual := rec.Body.String()
 
 			expected, err := json.Marshal(tt.res)
+			require.NoError(t, err)
 
 			require.Equal(t, tt.status, rec.Code)
 			require.Equal(t, string(expected)+"\n", actual)
@@ -112,8 +120,6 @@ func TestAuth_PostDummyLogin(t *testing.T) {
 }
 
 func newEchoCtx(t *testing.T, input any) (echo.Context, *Server, *httptest.ResponseRecorder, mocks) {
-	e := echo.New()
-
 	body, err := json.Marshal(input)
 	require.NoError(t, err)
 
@@ -131,6 +137,8 @@ func newEchoCtx(t *testing.T, input any) (echo.Context, *Server, *httptest.Respo
 }
 
 func TestAuth_PostLogin(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name   string
 		input  *api.PostLoginJSONBody
@@ -164,11 +172,11 @@ func TestAuth_PostLogin(t *testing.T) {
 			input:  input,
 			token:  "",
 			status: http.StatusInternalServerError,
-			res:    api.Error{Message: ErrOops.Error()},
+			res:    api.Error{Message: errOops.Error()},
 			mockFn: func(test test, m mocks) {
 				m.auth.EXPECT().Login(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(domain.Token(""), ErrOops)
+					Return(domain.Token(""), errOops)
 			},
 		},
 	}
@@ -186,6 +194,7 @@ func TestAuth_PostLogin(t *testing.T) {
 			actual := rec.Body.String()
 
 			expected, err := json.Marshal(tt.res)
+			require.NoError(t, err)
 
 			require.Equal(t, tt.status, rec.Code)
 			require.Equal(t, string(expected)+"\n", actual)
@@ -194,6 +203,8 @@ func TestAuth_PostLogin(t *testing.T) {
 }
 
 func TestAuth_PostRegister(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name   string
 		input  *api.PostRegisterJSONBody
@@ -228,11 +239,11 @@ func TestAuth_PostRegister(t *testing.T) {
 			name:   "register error",
 			input:  input,
 			status: http.StatusInternalServerError,
-			res:    api.Error{Message: ErrOops.Error()},
+			res:    api.Error{Message: errOops.Error()},
 			mockFn: func(test test, m mocks) {
 				m.auth.EXPECT().Register(gomock.Any(), gomock.Any()).
 					Times(1).
-					Return(nil, ErrOops)
+					Return(nil, errOops)
 			},
 		},
 	}

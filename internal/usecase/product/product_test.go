@@ -69,7 +69,7 @@ func TestProductUseCase_Create(t *testing.T) {
 			reception: &domain.Reception{ID: uuid.New()},
 			product:   &domain.Product{ID: uuid.New()},
 			mockFn: func(ctx context.Context, test test, m productMocks) {
-				m.receptionRepo.EXPECT().GetFirstByStatus(gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(test.reception, nil)
 				m.productRepo.EXPECT().Create(gomock.Any(), gomock.Any()).
@@ -83,7 +83,7 @@ func TestProductUseCase_Create(t *testing.T) {
 			input:   input,
 			wantErr: domain.ErrThereIsNoInProgressReception,
 			mockFn: func(ctx context.Context, test test, m productMocks) {
-				m.receptionRepo.EXPECT().GetFirstByStatus(gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(test.reception, repoerr.ErrNotFound)
 				runRepeatableReadAndUnwrap(m)
@@ -94,7 +94,7 @@ func TestProductUseCase_Create(t *testing.T) {
 			input:   input,
 			wantErr: ErrProductOops,
 			mockFn: func(ctx context.Context, test test, m productMocks) {
-				m.receptionRepo.EXPECT().GetFirstByStatus(gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(test.reception, ErrProductOops)
 				runRepeatableReadAndUnwrap(m)
@@ -106,7 +106,7 @@ func TestProductUseCase_Create(t *testing.T) {
 			reception: &domain.Reception{ID: uuid.New()},
 			wantErr:   ErrProductOops,
 			mockFn: func(ctx context.Context, test test, m productMocks) {
-				m.receptionRepo.EXPECT().GetFirstByStatus(gomock.Any(), gomock.Any()).
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(test.reception, nil)
 				m.productRepo.EXPECT().Create(gomock.Any(), gomock.Any()).

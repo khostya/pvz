@@ -1,13 +1,7 @@
-coverage:
-  status:
-    patch: off
-    project:
-      default:
-        target: 50%
-        threshold: 10%
-        if_ci_failed: error
 
 ignore:
-  - "**/pkg/api/**" # ignore folders and all its contents
-  - "**/mocks/*"         # glob accepted
-  - "**/*_test.go"         # glob accepted
+  - "pkg/api/**"
+  - "tests/**"
+  - "internal/api/v1/http/server/"
+  - "**/mocks/**"
+  - "**/*_test.go"

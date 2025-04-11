@@ -8,12 +8,26 @@ import (
 )
 
 type (
+	App struct {
+		Name string `yaml:"name" env-default:"pvz"`
+		Env  string `yaml:"env" env-default:"dev"`
+	}
+
+	Cache struct {
+		PvzListTTL time.Duration `yaml:"pvz_list_ttl" env-default:"5m"`
+	}
+
 	Config struct {
-		Env     string  `env-required:"true" yaml:"env"`
-		API     API     `yaml:"api" env-prefix:"api"`
+		App     App     `yaml:"app"`
+		API     API     `yaml:"api"`
+		Cache   Cache   `yaml:"cache"`
 		Auth    Auth    `yaml:"auth" env-prefix:"auth"`
 		PG      PG      `yaml:"postgres"`
 		Swagger Swagger `yaml:"swagger"`
+	}
+
+	Prometheus struct {
+		Port uint16 `yaml:"port" env-default:"3000"`
 	}
 
 	Swagger struct {
@@ -25,22 +39,22 @@ type (
 	}
 
 	API struct {
-		HTTP HTTP `yaml:"http" env-required:"true"`
-		GRPC GRPC `yaml:"grpc" env-required:"true"`
+		HTTP       HTTP       `yaml:"http" env-required:"true"`
+		GRPC       GRPC       `yaml:"grpc" env-required:"true"`
+		Prometheus Prometheus `yaml:"prometheus" env-required:"true"`
 	}
 
 	HTTP struct {
-		Port           uint16        `env-required:"true" yaml:"port"`
-		ReadTimeout    time.Duration `env-required:"true" yaml:"read_timeout"`
-		WriteTimeout   time.Duration `env-required:"true" yaml:"write_timeout"`
-		IdleTimeout    time.Duration `env-required:"true" yaml:"idle_timeout"`
-		MaxHeaderBytes int           `env-required:"true" yaml:"max_header_bytes"`
+		Port         uint16        `env-required:"true" yaml:"port"`
+		ReadTimeout  time.Duration `env-required:"true" yaml:"read_timeout"`
+		WriteTimeout time.Duration `env-required:"true" yaml:"write_timeout"`
+		IdleTimeout  time.Duration `env-required:"true" yaml:"idle_timeout"`
 	}
 
 	PG struct {
-		URL             string        `env:"DATABASE_URL" env-default:"postgres://user:password@postgres:5431/postgres?sslmode=disable"`
-		MaxOpenConns    int           `env-required:"true" yaml:"max_open_conns"`
-		MaxIdleConns    int           `env-required:"true" yaml:"max_idle_conns"`
+		URL             string        `env:"DATABASE_URL" env-default:"postgres://user:password@localhost:5432/pvz?sslmode=disable"`
+		MaxOpenConns    int32         `env-required:"true" yaml:"max_open_conns"`
+		MinIdleConns    int32         `env-required:"true" yaml:"min_idle_conns"`
 		ConnMaxIdleTime time.Duration `env-required:"true" yaml:"conn_max_idle_time"`
 		ConnMaxLifetime time.Duration `env-required:"true" yaml:"conn_max_lifetime"`
 	}

@@ -1,9 +1,14 @@
 package dto
 
 import (
+	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/khostya/pvz/internal/domain"
 	"time"
+)
+
+const (
+	defaultLimit = 10
 )
 
 type (
@@ -21,3 +26,22 @@ type (
 		Limit     *int       `json:"limit"`
 	}
 )
+
+func (p GetPvzParam) Offset() uint64 {
+	if p.Page == nil {
+		return uint64(p.Count())
+	}
+	return uint64(*p.Page-1) * p.Count()
+}
+
+func (p GetPvzParam) Count() uint64 {
+	if p.Limit == nil {
+		return defaultLimit
+	}
+	return uint64(*p.Limit)
+}
+
+func (p GetPvzParam) JSON() (string, error) {
+	json, err := json.Marshal(p)
+	return string(json), err
+}

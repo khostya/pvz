@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"github.com/khostya/pvz/internal/cache"
 	"github.com/khostya/pvz/internal/domain"
 	"github.com/khostya/pvz/internal/dto"
 )
@@ -12,6 +13,8 @@ type (
 		auth      authService
 		reception receptionService
 		pvz       pvzService
+
+		getPvzResponseCache cache.Cache[string, []getPvzResponse]
 	}
 
 	productService interface {
@@ -37,17 +40,19 @@ type (
 )
 
 type Deps struct {
-	Product   productService
-	Auth      authService
-	Pvz       pvzService
-	Reception receptionService
+	Product             productService
+	Auth                authService
+	Pvz                 pvzService
+	Reception           receptionService
+	GetPvzResponseCache cache.Cache[string, []getPvzResponse]
 }
 
 func NewServer(deps Deps) *Server {
 	return &Server{
-		product:   deps.Product,
-		auth:      deps.Auth,
-		pvz:       deps.Pvz,
-		reception: deps.Reception,
+		product:             deps.Product,
+		auth:                deps.Auth,
+		pvz:                 deps.Pvz,
+		reception:           deps.Reception,
+		getPvzResponseCache: deps.GetPvzResponseCache,
 	}
 }
