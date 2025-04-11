@@ -5,6 +5,7 @@ import (
 	api "github.com/khostya/pvz/internal/api/v1/http/server"
 	"github.com/khostya/pvz/internal/domain"
 	"github.com/khostya/pvz/internal/dto"
+	"github.com/khostya/pvz/internal/metrics"
 	"github.com/khostya/pvz/pkg/appctx"
 	"github.com/labstack/echo/v4"
 	openapi_types "github.com/oapi-codegen/runtime/types"
@@ -37,6 +38,7 @@ func (s Server) PostProducts(eCtx echo.Context) error {
 		return WriteError(eCtx, http.StatusInternalServerError, err.Error())
 	}
 
+	metrics.IncCreatedProducts()
 	return eCtx.JSON(http.StatusCreated, toHttpProduct(product))
 }
 

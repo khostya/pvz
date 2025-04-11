@@ -14,6 +14,8 @@ import (
 )
 
 func TestProduct_PostProducts(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name  string
 		input *api.PostProductsJSONBody
@@ -107,6 +109,8 @@ func TestProduct_PostProducts(t *testing.T) {
 }
 
 func TestProduct_PostPvzPvzIdDeleteLastProduct(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name  string
 		input openapi_types.UUID

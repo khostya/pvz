@@ -12,6 +12,9 @@ func ScanOne[T any](ctx context.Context, query sq.Sqlizer, db transactor.QueryEn
 	var defaultT T
 
 	records, err := ScanALL[T](ctx, query, db)
+	if IsDuplicateKeyError(err) {
+		return defaultT, repoerr.ErrDuplicate
+	}
 	if err != nil {
 		return defaultT, err
 	}

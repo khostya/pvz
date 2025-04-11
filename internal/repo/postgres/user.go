@@ -29,7 +29,7 @@ func (r UserRepo) Create(ctx context.Context, user *domain.User) (*domain.User, 
 	record := schema.NewUser(user)
 
 	query := sq.Insert(schema.User{}.TableName()).
-		Columns(record.Columns()...).
+		Columns(record.InsertColumns()...).
 		Values(record.Values()...).
 		PlaceholderFormat(sq.Dollar).
 		Suffix(fmt.Sprintf("RETURNING %s", strings.Join(record.Columns(), ", ")))

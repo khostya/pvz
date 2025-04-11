@@ -8,12 +8,21 @@ import (
 )
 
 type (
+	App struct {
+		Name string `yaml:"name" env-default:"pvz"`
+		Env  string `yaml:"env" env-default:"dev"`
+	}
+
 	Config struct {
-		Env     string  `env-required:"true" yaml:"env"`
-		API     API     `yaml:"api" env-prefix:"api"`
+		App     App     `yaml:"app"`
+		API     API     `yaml:"api"`
 		Auth    Auth    `yaml:"auth" env-prefix:"auth"`
 		PG      PG      `yaml:"postgres"`
 		Swagger Swagger `yaml:"swagger"`
+	}
+
+	Prometheus struct {
+		Port uint16 `yaml:"port" env-default:"3000"`
 	}
 
 	Swagger struct {
@@ -25,8 +34,9 @@ type (
 	}
 
 	API struct {
-		HTTP HTTP `yaml:"http" env-required:"true"`
-		GRPC GRPC `yaml:"grpc" env-required:"true"`
+		HTTP       HTTP       `yaml:"http" env-required:"true"`
+		GRPC       GRPC       `yaml:"grpc" env-required:"true"`
+		Prometheus Prometheus `yaml:"prometheus" env-required:"true"`
 	}
 
 	HTTP struct {
@@ -38,7 +48,7 @@ type (
 	}
 
 	PG struct {
-		URL             string        `env:"DATABASE_URL" env-default:"postgres://user:password@postgres:5431/postgres?sslmode=disable"`
+		URL             string        `env:"DATABASE_URL" env-default:"postgres://user:password@localhost:5432/pvz?sslmode=disable"`
 		MaxOpenConns    int           `env-required:"true" yaml:"max_open_conns"`
 		MaxIdleConns    int           `env-required:"true" yaml:"max_idle_conns"`
 		ConnMaxIdleTime time.Duration `env-required:"true" yaml:"conn_max_idle_time"`

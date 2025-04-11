@@ -34,5 +34,5 @@ func StartApp(ctx context.Context, cfg config.Config) error {
 
 	uc := usecase.NewUseCase(deps)
 
-	return api.New(ctx, cfg.API, uc, tokenManager)
+	return api.New(ctx, cfg, uc, tokenManager)
 }

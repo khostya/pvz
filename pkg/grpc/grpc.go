@@ -48,6 +48,7 @@ func (s *Server) Start() error {
 		err := s.grpc.Serve(lis)
 		if err != nil {
 			errorChan <- err
+			close(errorChan)
 		}
 	}()
 

@@ -14,6 +14,8 @@ import (
 )
 
 func TestProduct_PostReceptions(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name   string
 		input  *api.PostReceptionsJSONBody
@@ -105,6 +107,8 @@ func TestProduct_PostReceptions(t *testing.T) {
 }
 
 func TestProduct_PvzPvzIdCloseLastReception(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name   string
 		input  openapi_types.UUID

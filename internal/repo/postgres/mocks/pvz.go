@@ -15,6 +15,7 @@ import (
 
 	uuid "github.com/google/uuid"
 	domain "github.com/khostya/pvz/internal/domain"
+	dto "github.com/khostya/pvz/internal/dto"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -57,6 +58,21 @@ func (mr *MockPvzRepoMockRecorder) Create(ctx, pvz any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockPvzRepo)(nil).Create), ctx, pvz)
 }
 
+// GetAllPVZs mocks base method.
+func (m *MockPvzRepo) GetAllPVZList(ctx context.Context) ([]*domain.PVZ, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllPVZList", ctx)
+	ret0, _ := ret[0].([]*domain.PVZ)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllPVZs indicates an expected call of GetAllPVZs.
+func (mr *MockPvzRepoMockRecorder) GetAllPVZs(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllPVZList", reflect.TypeOf((*MockPvzRepo)(nil).GetAllPVZList), ctx)
+}
+
 // GetByID mocks base method.
 func (m *MockPvzRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.PVZ, error) {
 	m.ctrl.T.Helper()
@@ -70,4 +86,19 @@ func (m *MockPvzRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.PVZ, e
 func (mr *MockPvzRepoMockRecorder) GetByID(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockPvzRepo)(nil).GetByID), ctx, id)
+}
+
+// GetPVZ mocks base method.
+func (m *MockPvzRepo) GetPVZ(ctx context.Context, param dto.GetPvzParam) ([]*domain.PVZ, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPVZ", ctx, param)
+	ret0, _ := ret[0].([]*domain.PVZ)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPVZ indicates an expected call of GetPVZ.
+func (mr *MockPvzRepoMockRecorder) GetPVZ(ctx, param any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPVZ", reflect.TypeOf((*MockPvzRepo)(nil).GetPVZ), ctx, param)
 }

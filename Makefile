@@ -15,6 +15,18 @@ down:
 up-postgres:
 	${COMPOSE_POSTGRES} up -d --build postgres migrations
 
+.PHONY: up-pvz
+up-pvz:
+	${COMPOSE_PVZ} up -d --build pvz
+
+.PHONY: down-pvz
+down-pvz:
+	${COMPOSE_PVZ} down
+
+.PHONY: test-unit
+test-unit:
+	go test ./internal/... ./pkg/...
+
 .PHONY: up-postgres
 down-postgres:
 	${COMPOSE_POSTGRES} down

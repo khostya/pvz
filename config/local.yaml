@@ -1,4 +1,6 @@
-env: dev
+app:
+  name: pvz
+  env: dev
 
 api:
   http:
@@ -9,6 +11,8 @@ api:
     max_header_bytes: 65000
   grpc:
     port: 3000
+  prometheus:
+    port: 9000
 
 swagger:
   port: 2000

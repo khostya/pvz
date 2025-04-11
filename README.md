@@ -1,3 +1,8 @@
+![build](https://github.com/khostya/pvz/actions/workflows/build.yml/badge.svg?event=push)
+![linter](https://github.com/khostya/pvz/actions/workflows/linter.yml/badge.svg?event=push)
+![tests](https://github.com/khostya/pvz/actions/workflows/coverage.yml/badge.svg?event=push)
+[![codecov](https://codecov.io/gh/khostya/pvz/graph/badge.svg?token=2SBOQVPQU0)](https://codecov.io/gh/khostya/pvz)
+
 # Тестовое задание для стажёра Backend-направления (весенняя волна 2025)
 
 ## Сервис для работы с ПВЗ

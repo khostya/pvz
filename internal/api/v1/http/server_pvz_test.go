@@ -14,6 +14,8 @@ import (
 )
 
 func TestProduct_PostPvz(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name   string
 		input  *api.PostPvzJSONRequestBody
@@ -112,6 +114,8 @@ func TestProduct_PostPvz(t *testing.T) {
 }
 
 func TestProduct_GetPvz(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name   string
 		input  api.GetPvzParams

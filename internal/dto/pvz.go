@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+const (
+	defaultLimit = 10
+)
+
 type (
 	CreatePvzParam struct {
 		ID               uuid.UUID   `json:"id" validate:"required"`
@@ -21,3 +25,17 @@ type (
 		Limit     *int       `json:"limit"`
 	}
 )
+
+func (p GetPvzParam) Offset() uint64 {
+	if p.Page == nil {
+		return uint64(p.Count())
+	}
+	return uint64(*p.Page-1) * p.Count()
+}
+
+func (p GetPvzParam) Count() uint64 {
+	if p.Limit == nil {
+		return defaultLimit
+	}
+	return uint64(*p.Limit)
+}

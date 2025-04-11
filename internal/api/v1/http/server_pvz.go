@@ -5,6 +5,7 @@ import (
 	api "github.com/khostya/pvz/internal/api/v1/http/server"
 	"github.com/khostya/pvz/internal/domain"
 	"github.com/khostya/pvz/internal/dto"
+	"github.com/khostya/pvz/internal/metrics"
 	"github.com/khostya/pvz/pkg/appctx"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -13,7 +14,7 @@ import (
 
 type (
 	receptions struct {
-		Products  []api.Product `json:"receptions,omitempty"`
+		Products  []api.Product `json:"products,omitempty"`
 		Reception api.Reception `json:"reception,omitempty"`
 	}
 
@@ -93,6 +94,7 @@ func (s Server) PostPvz(eCtx echo.Context) error {
 		return WriteError(eCtx, http.StatusInternalServerError, err.Error())
 	}
 
+	metrics.IncCreatedPVZ()
 	return eCtx.JSON(http.StatusCreated, toHttpPVZ(pvz))
 }
 

@@ -29,7 +29,7 @@ func (r ReceptionRepo) Create(ctx context.Context, reception *domain.Reception) 
 	record := schema.NewReception(reception)
 
 	query := sq.Insert(schema.Reception{}.TableName()).
-		Columns(record.Columns()...).
+		Columns(record.InsertColumns()...).
 		Values(record.Values()...).
 		PlaceholderFormat(sq.Dollar).
 		Suffix(fmt.Sprintf("RETURNING %s", strings.Join(record.Columns(), ", ")))
@@ -43,19 +43,19 @@ func (r ReceptionRepo) Create(ctx context.Context, reception *domain.Reception) 
 }
 
 func (r ReceptionRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Reception, error) {
-	return r.getByColumn(ctx, "id", id)
+	return r.getByColumn(ctx, sq.Eq{"id": id})
 }
 
-func (r ReceptionRepo) GetFirstByStatus(ctx context.Context, status domain.ReceptionStatus) (*domain.Reception, error) {
-	return r.getByColumn(ctx, "status", status)
+func (r ReceptionRepo) GetFirstByStatusAndPVZId(ctx context.Context, status domain.ReceptionStatus, pvzID uuid.UUID) (*domain.Reception, error) {
+	return r.getByColumn(ctx, sq.Eq{"status": status, "pvz_id": pvzID})
 }
 
-func (r ReceptionRepo) getByColumn(ctx context.Context, column string, value any) (*domain.Reception, error) {
+func (r ReceptionRepo) getByColumn(ctx context.Context, eq sq.Eq) (*domain.Reception, error) {
 	db := r.db.GetQueryEngine(ctx)
 
 	query := sq.Select(schema.Reception{}.Columns()...).
 		From(schema.Reception{}.TableName()).
-		Where(fmt.Sprintf("%s = ?", column), value).
+		Where(eq).
 		Limit(1).
 		PlaceholderFormat(sq.Dollar)
 
@@ -67,11 +67,11 @@ func (r ReceptionRepo) getByColumn(ctx context.Context, column string, value any
 	return schema.NewDomainReception(&res), nil
 }
 
-func (r ReceptionRepo) UpdateLastReceptionStatus(ctx context.Context, pvzID uuid.UUID, status domain.ReceptionStatus) (*domain.Reception, error) {
+func (r ReceptionRepo) UpdateReceptionStatusByID(ctx context.Context, id uuid.UUID, status domain.ReceptionStatus) (*domain.Reception, error) {
 	db := r.db.GetQueryEngine(ctx)
 
 	query := sq.Update(schema.Reception{}.TableName()).
-		Where("pvz_id = ? and status != ?", pvzID, status).
+		Where("id = ? and status != ?", id, status).
 		Set("status", status).
 		PlaceholderFormat(sq.Dollar).
 		Suffix(fmt.Sprintf("RETURNING %s", strings.Join(schema.Reception{}.Columns(), ", ")))

@@ -22,6 +22,8 @@ type (
 
 	pvzRepo interface {
 		Create(ctx context.Context, pvz *domain.PVZ) (*domain.PVZ, error)
+		GetAllPVZList(ctx context.Context) ([]*domain.PVZ, error)
+		GetPVZ(ctx context.Context, param dto.GetPvzParam) ([]*domain.PVZ, error)
 	}
 
 	DepsUseCase struct {
@@ -47,12 +49,10 @@ func (uc *UseCase) Create(ctx context.Context, param dto.CreatePvzParam) (*domai
 	})
 }
 
-func (uc *UseCase) GetAllPvzs(ctx context.Context) ([]*domain.PVZ, error) {
-	//TODO implement me
-	panic("implement me")
+func (uc *UseCase) GetAllPvzList(ctx context.Context) ([]*domain.PVZ, error) {
+	return uc.pvzRepo.GetAllPVZList(ctx)
 }
 
 func (uc *UseCase) GetPvz(ctx context.Context, param dto.GetPvzParam) ([]*domain.PVZ, error) {
-	//TODO implement me
-	panic("implement me")
+	return uc.pvzRepo.GetPVZ(ctx, param)
 }

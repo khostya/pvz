@@ -31,15 +31,14 @@ func NewReception(pvzID uuid.UUID) *domain.Reception {
 		ID:       uuid.New(),
 		PvzId:    pvzID,
 		DateTime: time.Now(),
-		Status:   domain.ReceptionStatusClose,
+		Status:   domain.ReceptionStatusInProgress,
 	}
 }
 
-func NewProduct(receptionID, pvzID uuid.UUID) *domain.Product {
+func NewProduct(receptionID uuid.UUID) *domain.Product {
 	return &domain.Product{
 		ID:          uuid.New(),
 		ReceptionID: receptionID,
-		PvzID:       pvzID,
 		DateTime:    time.Now(),
 		Type:        domain.ProductTypeShoes,
 	}

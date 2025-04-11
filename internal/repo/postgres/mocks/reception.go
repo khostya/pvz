@@ -72,32 +72,32 @@ func (mr *MockReceptionRepoMockRecorder) GetByID(ctx, id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockReceptionRepo)(nil).GetByID), ctx, id)
 }
 
-// GetFirstByStatus mocks base method.
-func (m *MockReceptionRepo) GetFirstByStatus(ctx context.Context, status domain.ReceptionStatus) (*domain.Reception, error) {
+// GetFirstByStatusAndPVZId mocks base method.
+func (m *MockReceptionRepo) GetFirstByStatusAndPVZId(ctx context.Context, status domain.ReceptionStatus, pvzID uuid.UUID) (*domain.Reception, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetFirstByStatus", ctx, status)
+	ret := m.ctrl.Call(m, "GetFirstByStatusAndPVZId", ctx, status, pvzID)
 	ret0, _ := ret[0].(*domain.Reception)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetFirstByStatus indicates an expected call of GetFirstByStatus.
-func (mr *MockReceptionRepoMockRecorder) GetFirstByStatus(ctx, status any) *gomock.Call {
+// GetFirstByStatusAndPVZId indicates an expected call of GetFirstByStatusAndPVZId.
+func (mr *MockReceptionRepoMockRecorder) GetFirstByStatusAndPVZId(ctx, status, pvzID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFirstByStatus", reflect.TypeOf((*MockReceptionRepo)(nil).GetFirstByStatus), ctx, status)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFirstByStatusAndPVZId", reflect.TypeOf((*MockReceptionRepo)(nil).GetFirstByStatusAndPVZId), ctx, status, pvzID)
 }
 
-// UpdateLastReceptionStatus mocks base method.
-func (m *MockReceptionRepo) UpdateLastReceptionStatus(ctx context.Context, pvzID uuid.UUID, status domain.ReceptionStatus) (*domain.Reception, error) {
+// UpdateReceptionStatusByID mocks base method.
+func (m *MockReceptionRepo) UpdateReceptionStatusByID(ctx context.Context, id uuid.UUID, status domain.ReceptionStatus) (*domain.Reception, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateLastReceptionStatus", ctx, pvzID, status)
+	ret := m.ctrl.Call(m, "UpdateReceptionStatusByID", ctx, id, status)
 	ret0, _ := ret[0].(*domain.Reception)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// UpdateLastReceptionStatus indicates an expected call of UpdateLastReceptionStatus.
-func (mr *MockReceptionRepoMockRecorder) UpdateLastReceptionStatus(ctx, pvzID, status any) *gomock.Call {
+// UpdateReceptionStatusByID indicates an expected call of UpdateReceptionStatusByID.
+func (mr *MockReceptionRepoMockRecorder) UpdateReceptionStatusByID(ctx, id, status any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLastReceptionStatus", reflect.TypeOf((*MockReceptionRepo)(nil).UpdateLastReceptionStatus), ctx, pvzID, status)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateReceptionStatusByID", reflect.TypeOf((*MockReceptionRepo)(nil).UpdateReceptionStatusByID), ctx, id, status)
 }

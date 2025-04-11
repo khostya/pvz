@@ -21,6 +21,7 @@ import (
 
 var (
 	ErrOops = errors.New("oops error")
+	e       = echo.New()
 )
 
 type mocks struct {
@@ -50,6 +51,8 @@ func NewMockServer(m mocks) *Server {
 }
 
 func TestAuth_PostDummyLogin(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name   string
 		input  *api.PostDummyLoginJSONBody
@@ -104,6 +107,7 @@ func TestAuth_PostDummyLogin(t *testing.T) {
 			actual := rec.Body.String()
 
 			expected, err := json.Marshal(tt.res)
+			require.NoError(t, err)
 
 			require.Equal(t, tt.status, rec.Code)
 			require.Equal(t, string(expected)+"\n", actual)
@@ -112,8 +116,6 @@ func TestAuth_PostDummyLogin(t *testing.T) {
 }
 
 func newEchoCtx(t *testing.T, input any) (echo.Context, *Server, *httptest.ResponseRecorder, mocks) {
-	e := echo.New()
-
 	body, err := json.Marshal(input)
 	require.NoError(t, err)
 
@@ -131,6 +133,8 @@ func newEchoCtx(t *testing.T, input any) (echo.Context, *Server, *httptest.Respo
 }
 
 func TestAuth_PostLogin(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name   string
 		input  *api.PostLoginJSONBody
@@ -186,6 +190,7 @@ func TestAuth_PostLogin(t *testing.T) {
 			actual := rec.Body.String()
 
 			expected, err := json.Marshal(tt.res)
+			require.NoError(t, err)
 
 			require.Equal(t, tt.status, rec.Code)
 			require.Equal(t, string(expected)+"\n", actual)
@@ -194,6 +199,8 @@ func TestAuth_PostLogin(t *testing.T) {
 }
 
 func TestAuth_PostRegister(t *testing.T) {
+	t.Parallel()
+
 	type test struct {
 		name   string
 		input  *api.PostRegisterJSONBody

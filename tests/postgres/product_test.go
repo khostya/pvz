@@ -4,11 +4,11 @@ package postgres
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/khostya/pvz/internal/domain"
 	"github.com/khostya/pvz/internal/repo/postgres"
 	"github.com/khostya/pvz/pkg/postgres/repoerr"
 	"github.com/khostya/pvz/pkg/postgres/transactor"
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"testing"
 )
@@ -43,49 +43,70 @@ func (s *ProductTestSuite) TestCreate() {
 func (s *ProductTestSuite) createProduct() *domain.Product {
 	pvz := NewPVZ()
 	_, err := s.pvzRepo.Create(s.ctx, pvz)
+	s.Require().NoError(err)
 
 	reception := NewReception(pvz.ID)
 	reception, err = s.receptionRepo.Create(s.ctx, reception)
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 
-	product := NewProduct(reception.ID, pvz.ID)
+	product := NewProduct(reception.ID)
 	product, err = s.productRepo.Create(s.ctx, product)
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
+
 	return product
+}
+
+func (s *ProductTestSuite) TestCreateDuplicate() {
+	product := s.createProduct()
+
+	_, err := s.productRepo.Create(s.ctx, product)
+	s.Require().Equal(repoerr.ErrDuplicate, err)
 }
 
 func (s *ProductTestSuite) TestGetByID() {
 	product := s.createProduct()
 
 	actual, err := s.productRepo.GetByID(s.ctx, product.ID)
-	require.NoError(s.T(), err)
-	require.EqualExportedValues(s.T(), product, actual)
+	s.Require().NoError(err)
+	s.Require().EqualExportedValues(product, actual)
+}
+
+func (s *ProductTestSuite) TestGetByIDNotFound() {
+	_, err := s.productRepo.GetByID(s.ctx, uuid.New())
+	s.Require().Equal(repoerr.ErrNotFound, err)
 }
 
 func (s *ProductTestSuite) TestDeleteByDateTIme() {
 	product := s.createProduct()
 
 	err := s.productRepo.DeleteLastByDateTime(s.ctx, product.ReceptionID)
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 
 	_, err = s.productRepo.GetByID(s.ctx, product.ID)
-	require.Equal(s.T(), repoerr.ErrNotFound, err)
+	s.Require().Equal(repoerr.ErrNotFound, err)
+}
+
+func (s *ProductTestSuite) TestDeleteByDateTImeNotFound() {
+	err := s.productRepo.DeleteLastByDateTime(s.ctx, uuid.New())
+	s.Require().Equal(repoerr.ErrNotFound, err)
 }
 
 func (s *ProductTestSuite) TestDeleteLastByDateTIme() {
+	truncate()
+
 	product := s.createProduct()
 
-	product2 := NewProduct(product.ReceptionID, product.PvzID)
+	product2 := NewProduct(product.ReceptionID)
 	product2, err := s.productRepo.Create(s.ctx, product2)
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 
 	err = s.productRepo.DeleteLastByDateTime(s.ctx, product.ReceptionID)
-	require.NoError(s.T(), err)
+	s.Require().NoError(err)
 
-	actual, err := s.productRepo.GetByID(s.ctx, product.ID)
-	require.NoError(s.T(), err)
-	require.EqualExportedValues(s.T(), product, actual)
+	actual, err := s.productRepo.GetByID(s.ctx, product2.ID)
+	s.Require().NoError(err)
+	s.Require().EqualExportedValues(product2, actual)
 
-	_, err = s.productRepo.GetByID(s.ctx, product2.ID)
-	require.Equal(s.T(), repoerr.ErrNotFound, err)
+	_, err = s.productRepo.GetByID(s.ctx, product.ID)
+	s.Require().Equal(repoerr.ErrNotFound, err)
 }

@@ -31,7 +31,7 @@ type (
 	}
 
 	receptionRepo interface {
-		GetFirstByStatus(ctx context.Context, status domain.ReceptionStatus) (*domain.Reception, error)
+		GetFirstByStatusAndPVZId(ctx context.Context, status domain.ReceptionStatus, pvzID uuid.UUID) (*domain.Reception, error)
 	}
 
 	DepsUseCase struct {
@@ -56,7 +56,7 @@ func (u *UseCase) Create(ctx context.Context, param dto.CreateProductParam) (*do
 
 	var product *domain.Product
 	err := u.tm.RunRepeatableRead(ctx, func(ctx context.Context) error {
-		reception, err := u.receptionRepo.GetFirstByStatus(ctx, domain.ReceptionStatusInProgress)
+		reception, err := u.receptionRepo.GetFirstByStatusAndPVZId(ctx, domain.ReceptionStatusInProgress, param.PvzID)
 		if err != nil && errors.Is(err, repoerr.ErrNotFound) {
 			return domain.ErrThereIsNoInProgressReception
 		}
@@ -69,7 +69,6 @@ func (u *UseCase) Create(ctx context.Context, param dto.CreateProductParam) (*do
 			ID:          uuid.New(),
 			DateTime:    time.Now(),
 			Type:        param.Type,
-			PvzID:       param.PvzID,
 			ReceptionID: reception.ID,
 		})
 		return err

@@ -5,7 +5,7 @@ package postgres
 import (
 	"context"
 	"github.com/khostya/pvz/internal/repo/postgres/schema"
-	"github.com/khostya/pvz/test/postgres/postgresql"
+	"github.com/khostya/pvz/tests/postgres/postgresql"
 	"os"
 	"testing"
 )
@@ -24,10 +24,14 @@ var tables []string = []string{
 func TestMain(m *testing.M) {
 	db = postgresql.NewFromEnv()
 
+	truncate()
 	code := m.Run()
 
-	db.TruncateTable(context.Background(), tables...)
 	db.Close()
 
 	os.Exit(code)
+}
+
+func truncate() {
+	db.TruncateTable(context.Background(), tables...)
 }
