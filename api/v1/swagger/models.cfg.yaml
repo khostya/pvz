@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=./configuration-schema.json
+package: api
+output: ./../../../internal/api/v1/http/server/server.gen.go
+generate:
+  echo-server: true
+  client: true
+  models: true
+  embedded-spec: true
+output-options:
+  skip-prune: true

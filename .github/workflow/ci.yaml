@@ -1,0 +1,57 @@
+name: build
+
+on:
+  push:
+    branches: ["*"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22.5'
+
+      - name: Build
+        run: go build -o ./ ./cmd/app
+
+  golangci-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22.5'
+      - name: lint
+        uses: golangci/golangci-lint-action@v6.1.0
+        with:
+          version: latest
+          skip-build-cache: true
+          skip-pkg-cache: true
+
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.24.0
+
+    - name: Up postgres
+      run: make up-postgres
+
+    - name: Run tests
+      run: ./scripts/coverage.sh
+
+    - name: Down postgres
+      run: make down-postgres
+
+    - name: Upload results to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
