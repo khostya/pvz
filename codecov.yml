@@ -1,0 +1,6 @@
+ignore:
+  - "**/pkg/api/**"
+  - "**/tests/**"
+  - "**/internal/api/v1/http/server/*"
+  - "**/mocks/**"
+  - "**/*_test.go"
