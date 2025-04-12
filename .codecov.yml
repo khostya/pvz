@@ -8,8 +8,8 @@ coverage:
         if_ci_failed: error
 
 ignore:
-  - "./pkg/api/**" # ignore folders and all its contents
-  - "./tests/**"
-  - "./internal/api/v1/http/server/*"
-  - "**/mocks/*"         # glob accepted
+  - "**/pkg/api/**" # ignore folders and all its contents
+  - "**/tests/**"
+  - "**/internal/api/v1/http/server/*"
+  - "**/mocks/**"         # glob accepted
   - "**/*_test.go"         # glob accepted
