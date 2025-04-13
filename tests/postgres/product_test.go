@@ -79,7 +79,7 @@ func (s *ProductTestSuite) TestGetByIDNotFound() {
 func (s *ProductTestSuite) TestDeleteByDateTIme() {
 	product := s.createProduct()
 
-	err := s.productRepo.DeleteLastByDateTime(s.ctx, product.ReceptionID)
+	err := s.productRepo.DeleteLastByDateTimeAndReceptionID(s.ctx, product.ReceptionID)
 	s.Require().NoError(err)
 
 	_, err = s.productRepo.GetByID(s.ctx, product.ID)
@@ -87,11 +87,11 @@ func (s *ProductTestSuite) TestDeleteByDateTIme() {
 }
 
 func (s *ProductTestSuite) TestDeleteByDateTImeNotFound() {
-	err := s.productRepo.DeleteLastByDateTime(s.ctx, uuid.New())
+	err := s.productRepo.DeleteLastByDateTimeAndReceptionID(s.ctx, uuid.New())
 	s.Require().Equal(repoerr.ErrNotFound, err)
 }
 
-func (s *ProductTestSuite) TestDeleteLastByDateTIme() {
+func (s *ProductTestSuite) TestDeleteLastByDateTimeAndReceptionID() {
 	truncate()
 
 	product := s.createProduct()
@@ -100,13 +100,13 @@ func (s *ProductTestSuite) TestDeleteLastByDateTIme() {
 	product2, err := s.productRepo.Create(s.ctx, product2)
 	s.Require().NoError(err)
 
-	err = s.productRepo.DeleteLastByDateTime(s.ctx, product.ReceptionID)
+	err = s.productRepo.DeleteLastByDateTimeAndReceptionID(s.ctx, product.ReceptionID)
 	s.Require().NoError(err)
 
-	actual, err := s.productRepo.GetByID(s.ctx, product2.ID)
+	actual, err := s.productRepo.GetByID(s.ctx, product.ID)
 	s.Require().NoError(err)
-	s.Require().EqualExportedValues(product2, actual)
+	s.Require().EqualExportedValues(product, actual)
 
-	_, err = s.productRepo.GetByID(s.ctx, product.ID)
+	_, err = s.productRepo.GetByID(s.ctx, product2.ID)
 	s.Require().Equal(repoerr.ErrNotFound, err)
 }

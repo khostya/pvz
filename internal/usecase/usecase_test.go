@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"github.com/khostya/pvz/internal/lib/jwt"
+	"github.com/khostya/pvz/internal/service/jwt"
 	"github.com/khostya/pvz/pkg/hash"
 	"github.com/khostya/pvz/pkg/postgres/transactor"
 	"github.com/stretchr/testify/require"

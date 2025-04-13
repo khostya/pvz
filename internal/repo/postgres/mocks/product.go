@@ -58,9 +58,9 @@ func (mr *MockProductRepoMockRecorder) Create(ctx, product any) *gomock.Call {
 }
 
 // DeleteLastByDateTime mocks base method.
-func (m *MockProductRepo) DeleteLastByDateTime(ctx context.Context, receptionID uuid.UUID) error {
+func (m *MockProductRepo) DeleteLastByDateTimeAndReceptionID(ctx context.Context, receptionID uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteLastByDateTime", ctx, receptionID)
+	ret := m.ctrl.Call(m, "DeleteLastByDateTimeAndReceptionID", ctx, receptionID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
@@ -68,7 +68,7 @@ func (m *MockProductRepo) DeleteLastByDateTime(ctx context.Context, receptionID 
 // DeleteLastByDateTime indicates an expected call of DeleteLastByDateTime.
 func (mr *MockProductRepoMockRecorder) DeleteLastByDateTime(ctx, receptionID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLastByDateTime", reflect.TypeOf((*MockProductRepo)(nil).DeleteLastByDateTime), ctx, receptionID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLastByDateTimeAndReceptionID", reflect.TypeOf((*MockProductRepo)(nil).DeleteLastByDateTimeAndReceptionID), ctx, receptionID)
 }
 
 // GetByID mocks base method.

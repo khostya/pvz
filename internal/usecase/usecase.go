@@ -1,8 +1,8 @@
 package usecase
 
 import (
-	"github.com/khostya/pvz/internal/lib/jwt"
 	"github.com/khostya/pvz/internal/repo/postgres"
+	"github.com/khostya/pvz/internal/service/jwt"
 	"github.com/khostya/pvz/internal/usecase/auth"
 	"github.com/khostya/pvz/internal/usecase/product"
 	"github.com/khostya/pvz/internal/usecase/pvz"

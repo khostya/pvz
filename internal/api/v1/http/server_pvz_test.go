@@ -125,7 +125,7 @@ func TestProduct_GetPvz(t *testing.T) {
 	}
 
 	input := api.GetPvzParams{}
-	pvzResponse := []getPvzResponse{
+	pvzResponse := []GetPvzResponse{
 		{
 			Pvz: api.PVZ{
 				Id:               &pvz.ID,

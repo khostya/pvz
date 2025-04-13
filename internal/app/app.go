@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/khostya/pvz/internal/api"
 	"github.com/khostya/pvz/internal/config"
-	"github.com/khostya/pvz/internal/lib/jwt"
+	"github.com/khostya/pvz/internal/service/jwt"
 	"github.com/khostya/pvz/internal/usecase"
 	"github.com/khostya/pvz/pkg/hash"
 	pgx "github.com/khostya/pvz/pkg/postgres"

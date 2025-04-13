@@ -27,6 +27,7 @@ func NewProduct(d *domain.Product) *Product {
 		ID:          d.ID,
 		Type:        string(d.Type),
 		ReceptionID: d.ReceptionID,
+		DateTime:    d.DateTime,
 	}
 }
 

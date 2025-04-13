@@ -13,7 +13,7 @@ func Test(t *testing.T) {
 
 	key := uuid.New().String()
 	pvz := []*domain.PVZ{{ID: uuid.New()}}
-	cache, err := NewPvzList[string, []*domain.PVZ](time.Hour)
+	cache, err := New[string, []*domain.PVZ](time.Hour)
 	require.NoError(t, err)
 
 	_, ok := cache.Get(key)

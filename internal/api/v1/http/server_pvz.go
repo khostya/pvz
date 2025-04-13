@@ -19,7 +19,7 @@ type (
 		Reception api.Reception `json:"reception,omitempty"`
 	}
 
-	getPvzResponse struct {
+	GetPvzResponse struct {
 		Pvz        api.PVZ      `json:"pvz,omitempty"`
 		Receptions []receptions `json:"receptions,omitempty"`
 	}
@@ -48,10 +48,10 @@ func (s Server) GetPvz(eCtx echo.Context, params api.GetPvzParams) error {
 		return WriteError(eCtx, http.StatusInternalServerError, err.Error())
 	}
 
-	res := make([]getPvzResponse, 0)
+	res := make([]GetPvzResponse, 0)
 
 	for _, pvz := range pvzList {
-		resp := getPvzResponse{
+		resp := GetPvzResponse{
 			Pvz: toHttpPVZ(pvz),
 		}
 

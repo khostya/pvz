@@ -58,7 +58,7 @@ func (r ProductRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Product
 	return schema.NewDomainProduct(res), nil
 }
 
-func (r ProductRepo) DeleteLastByDateTime(ctx context.Context, receptionID uuid.UUID) error {
+func (r ProductRepo) DeleteLastByDateTimeAndReceptionID(ctx context.Context, receptionID uuid.UUID) error {
 	db := r.db.GetQueryEngine(ctx)
 
 	lastProductByCreatedAt := sq.Select("p.id").

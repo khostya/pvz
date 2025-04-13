@@ -27,7 +27,7 @@ type (
 	}
 
 	productRepo interface {
-		DeleteLastByDateTime(ctx context.Context, receptionID uuid.UUID) error
+		DeleteLastByDateTimeAndReceptionID(ctx context.Context, receptionID uuid.UUID) error
 	}
 
 	DepsUseCase struct {
@@ -108,12 +108,12 @@ func (u *UseCase) DeleteLastProduct(ctx context.Context, param dto.DeleteLastRec
 	}
 
 	err := u.tm.RunRepeatableRead(ctx, func(ctx context.Context) error {
-		_, err := u.receptionRepo.GetFirstByStatusAndPVZId(ctx, domain.ReceptionStatusInProgress, param.PvzID)
+		reception, err := u.receptionRepo.GetFirstByStatusAndPVZId(ctx, domain.ReceptionStatusInProgress, param.PvzID)
 		if err != nil {
 			return err
 		}
 
-		err = u.productRepo.DeleteLastByDateTime(ctx, param.PvzID)
+		err = u.productRepo.DeleteLastByDateTimeAndReceptionID(ctx, reception.ID)
 		return err
 	})
 

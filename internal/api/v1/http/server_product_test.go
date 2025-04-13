@@ -83,6 +83,18 @@ func TestProduct_PostProducts(t *testing.T) {
 			},
 			role: domain.UserRoleModerator,
 		},
+		{
+			name:   "no reception is progress error",
+			input:  input,
+			status: http.StatusBadRequest,
+			res:    api.Error{Message: domain.ErrThereIsNoInProgressReception.Error()},
+			mockFn: func(test test, m mocks) {
+				m.product.EXPECT().Create(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(nil, domain.ErrThereIsNoInProgressReception)
+			},
+			role: domain.UserRoleModerator,
+		},
 	}
 
 	for _, tt := range tests {
@@ -190,8 +202,11 @@ func TestProduct_PostPvzPvzIdDeleteLastProduct(t *testing.T) {
 			expected, err := json.Marshal(tt.res)
 			require.NoError(t, err)
 
-			require.JSONEq(t, string(expected)+"\n", actual)
 			require.Equal(t, tt.status, rec.Code)
+			if tt.res == nil && actual == "" {
+				return
+			}
+			require.JSONEq(t, string(expected)+"\n", actual)
 		})
 	}
 }

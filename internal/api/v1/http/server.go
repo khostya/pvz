@@ -14,7 +14,7 @@ type (
 		reception receptionService
 		pvz       pvzService
 
-		getPvzResponseCache cache.Cache[string, []getPvzResponse]
+		getPvzResponseCache cache.Cache[string, []GetPvzResponse]
 	}
 
 	productService interface {
@@ -44,7 +44,7 @@ type Deps struct {
 	Auth                authService
 	Pvz                 pvzService
 	Reception           receptionService
-	GetPvzResponseCache cache.Cache[string, []getPvzResponse]
+	GetPvzResponseCache cache.Cache[string, []GetPvzResponse]
 }
 
 func NewServer(deps Deps) *Server {

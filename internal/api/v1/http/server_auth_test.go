@@ -30,7 +30,7 @@ type mocks struct {
 	auth                *mock_auth.MockAuth
 	pvz                 *mock_pvz.MockPvz
 	reception           *mock_reception.MockReception
-	getPvzResponseCache *mock_cache.MockCache[string, []getPvzResponse]
+	getPvzResponseCache *mock_cache.MockCache[string, []GetPvzResponse]
 }
 
 func newMocks(t *testing.T) mocks {
@@ -40,7 +40,7 @@ func newMocks(t *testing.T) mocks {
 		auth:                mock_auth.NewMockAuth(ctrl),
 		pvz:                 mock_pvz.NewMockPvz(ctrl),
 		reception:           mock_reception.NewMockReception(ctrl),
-		getPvzResponseCache: mock_cache.NewMockCache[string, []getPvzResponse](ctrl),
+		getPvzResponseCache: mock_cache.NewMockCache[string, []GetPvzResponse](ctrl),
 	}
 }
 

@@ -12,7 +12,7 @@ type (
 	}
 )
 
-func NewPvzList[K ristretto.Key, V any](ttl time.Duration) (*DefaultCache[K, V], error) {
+func New[K ristretto.Key, V any](ttl time.Duration) (*DefaultCache[K, V], error) {
 	t, err := memory.NewCache[K, V](ttl)
 	if err != nil {
 		return nil, err

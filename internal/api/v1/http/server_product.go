@@ -34,6 +34,9 @@ func (s Server) PostProducts(eCtx echo.Context) error {
 	if isForbiddenErr(err) {
 		return WriteError(eCtx, http.StatusForbidden, err.Error())
 	}
+	if errors.Is(err, domain.ErrThereIsNoInProgressReception) {
+		return WriteError(eCtx, http.StatusBadRequest, err.Error())
+	}
 	if err != nil {
 		return WriteError(eCtx, http.StatusInternalServerError, err.Error())
 	}
@@ -61,7 +64,7 @@ func (s Server) PostPvzPvzIdDeleteLastProduct(eCtx echo.Context, pvzId openapi_t
 		return WriteError(eCtx, http.StatusInternalServerError, err.Error())
 	}
 
-	return eCtx.JSON(http.StatusOK, nil)
+	return eCtx.NoContent(http.StatusOK)
 }
 
 func isForbiddenErr(err error) bool {

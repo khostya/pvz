@@ -10,7 +10,7 @@ import (
 	api "github.com/khostya/pvz/internal/api/v1/http/server"
 	cache2 "github.com/khostya/pvz/internal/cache"
 	"github.com/khostya/pvz/internal/config"
-	"github.com/khostya/pvz/internal/lib/jwt"
+	"github.com/khostya/pvz/internal/service/jwt"
 	"github.com/khostya/pvz/internal/usecase"
 	pvz_v1 "github.com/khostya/pvz/pkg/api/v1/proto"
 	grpcserver "github.com/khostya/pvz/pkg/grpc"
@@ -19,7 +19,6 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"log"
 	h "net/http"
 )
 
@@ -39,7 +38,10 @@ func New(ctx context.Context, cfg config.Config, uc *usecase.UseCase, manager *j
 		uc:      uc,
 	}
 
-	srv := newHttpServer(cfg.App, cfg, deps)
+	srv, err := newHttpServer(cfg.App, cfg, deps)
+	if err != nil {
+		return err
+	}
 	srv.Start()
 
 	grpcserver, err := newGRPCServer(ctx, cfg, deps)
@@ -81,16 +83,22 @@ func New(ctx context.Context, cfg config.Config, uc *usecase.UseCase, manager *j
 	return err
 }
 
-func newHttpServer(app config.App, cfg config.Config, deps deps) *httpserver.Server {
+func newHttpServer(app config.App, cfg config.Config, deps deps) (*httpserver.Server, error) {
 	cfgHttp := cfg.API.HTTP
 
 	v1 := echo.New()
 
+	getPvzResponseCache, err := cache2.New[string, []http.GetPvzResponse](cfg.Cache.PvzListTTL)
+	if err != nil {
+		return nil, err
+	}
+
 	server := http.NewServer(http.Deps{
-		Product:   deps.uc.Product,
-		Pvz:       deps.uc.Pvz,
-		Reception: deps.uc.Reception,
-		Auth:      deps.uc.Auth,
+		Product:             deps.uc.Product,
+		Pvz:                 deps.uc.Pvz,
+		Reception:           deps.uc.Reception,
+		Auth:                deps.uc.Auth,
+		GetPvzResponseCache: getPvzResponseCache,
 	})
 
 	v1.Use(echoprometheus.NewMiddleware(app.Name))
@@ -112,14 +120,14 @@ func newHttpServer(app config.App, cfg config.Config, deps deps) *httpserver.Ser
 
 	mw, err := middleware2.CreateValidatorMiddleware(middleware2.NewAuthenticator(deps.Manager))
 	if err != nil {
-		log.Fatalln("error creating middleware:", err)
+		return nil, err
 	}
 
 	v1.Use(mw)
 
 	api.RegisterHandlers(v1, server)
 
-	return srv
+	return srv, nil
 }
 
 func newPrometheusMetrics(cfg config.Prometheus) *httpserver.Server {
@@ -139,7 +147,7 @@ func newPrometheusMetrics(cfg config.Prometheus) *httpserver.Server {
 }
 
 func newGRPCServer(ctx context.Context, cfg config.Config, deps deps) (*grpcserver.Server, error) {
-	getPVZListResponse, err := cache2.NewPvzList[string, *pvz_v1.GetPVZListResponse](cfg.Cache.PvzListTTL)
+	getPVZListResponse, err := cache2.New[string, *pvz_v1.GetPVZListResponse](cfg.Cache.PvzListTTL)
 	if err != nil {
 		return nil, err
 	}
