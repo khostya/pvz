@@ -61,18 +61,16 @@ func (r ProductRepo) GetByID(ctx context.Context, id uuid.UUID) (*domain.Product
 func (r ProductRepo) DeleteLastByDateTimeAndReceptionID(ctx context.Context, receptionID uuid.UUID) error {
 	db := r.db.GetQueryEngine(ctx)
 
-	lastProductByCreatedAt := sq.Select("p.id").
-		From(schema.Product{}.TableName() + " AS p").
-		Where(sq.Eq{"p.reception_id": receptionID}).
+	lastProductByDateTime := sq.Select("p.id").
+		From(schema.Product{}.TableName()+" AS p").
+		Where("p.reception_id = ?", receptionID).
 		OrderBy("p.date_time desc").
 		Limit(1)
 
-	lastProductByCreatedAtSQL, args := lastProductByCreatedAt.MustSql()
-
-	query := sq.Delete(schema.Product{}.TableName()).
-		Where(fmt.Sprintf("id = (%s)", lastProductByCreatedAtSQL), args...).
+	deleteQuery := sq.Delete(schema.Product{}.TableName()).
+		Where(sq.Expr("id = (?)", lastProductByDateTime)).
 		PlaceholderFormat(sq.Dollar)
 
-	err := exec.Delete(ctx, query, db)
+	err := exec.Delete(ctx, deleteQuery, db)
 	return err
 }
