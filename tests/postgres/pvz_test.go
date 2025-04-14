@@ -104,6 +104,24 @@ func (s *PVZsTestSuite) TestGetPvz() {
 	s.checkGetPvz([]*domain.PVZ{pvz}, reception.DateTime, reception.DateTime)
 }
 
+func (s *PVZsTestSuite) TestGetPvzWithOutdatedReceptionDateTime() {
+	truncate()
+
+	pvz, reception := s.createFullPvz()
+
+	reception2 := NewReception(pvz.ID)
+	reception2, err := s.receptionRepo.Create(s.ctx, reception2)
+	s.Require().NoError(err)
+
+	reception3 := NewReception(pvz.ID)
+	reception3.DateTime = time.Now().AddDate(-1, -1, -1)
+	reception3, err = s.receptionRepo.Create(s.ctx, reception3)
+	s.Require().NoError(err)
+
+	pvz.Receptions = append(pvz.Receptions, reception2, reception3)
+	s.checkGetPvz([]*domain.PVZ{pvz}, reception.DateTime, reception.DateTime)
+}
+
 func (s *PVZsTestSuite) TestGetPvzManyPvz() {
 	truncate()
 
@@ -145,12 +163,8 @@ func (s *PVZsTestSuite) checkGetPvz(expected []*domain.PVZ, startDate, endDate t
 	s.Require().NoError(err)
 	s.Require().Len(actual, len(expected))
 
-	sort.Slice(expected, func(i, j int) bool {
-		return expected[i].ID.String() < expected[j].ID.String()
-	})
-	sort.Slice(actual, func(i, j int) bool {
-		return actual[i].ID.String() < actual[j].ID.String()
-	})
+	sortPVZs(actual)
+	sortPVZs(expected)
 
 	s.Require().EqualExportedValues(expected, actual)
 }
@@ -185,4 +199,20 @@ func (s *PVZsTestSuite) createFullPvzWithoutProducts() (*domain.PVZ, *domain.Rec
 	pvz.Receptions = append(pvz.Receptions, reception)
 
 	return pvz, reception
+}
+
+func sortPVZs(pvzs []*domain.PVZ) {
+	sort.Slice(pvzs, func(i, j int) bool {
+		return pvzs[i].ID.String() < pvzs[j].ID.String()
+	})
+	for _, pvz := range pvzs {
+		sort.Slice(pvz.Receptions, func(i, j int) bool {
+			return pvz.Receptions[i].DateTime.Before(pvz.Receptions[j].DateTime)
+		})
+		for _, p := range pvz.Receptions {
+			sort.Slice(p.Products, func(i, j int) bool {
+				return p.Products[i].ID.String() < p.Products[j].ID.String()
+			})
+		}
+	}
 }

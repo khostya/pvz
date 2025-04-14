@@ -82,20 +82,25 @@ func (r PvzRepo) GetAllPVZList(ctx context.Context) ([]*domain.PVZ, error) {
 func (r PvzRepo) GetPVZ(ctx context.Context, param dto.GetPvzParam) ([]*domain.PVZ, error) {
 	db := r.db.GetQueryEngine(ctx)
 
+	subquery := sq.Select("distinct r.pvz_id").
+		From(schema.Reception{}.TableName() + " as r")
+
+	if param.StartDate != nil {
+		subquery = subquery.Where(sq.GtOrEq{"r.date_time": param.StartDate})
+	}
+	if param.EndDate != nil {
+		subquery = subquery.Where(sq.LtOrEq{"r.date_time": param.EndDate})
+	}
+
 	query := sq.Select(schema.PvzReceptionProduct{}.Columns()...).
-		From(schema.Reception{}.TableName()).
+		From(schema.PVZ{}.TableName()).
+		Where(sq.Expr("pvzs.id in (?)", subquery)).
 		Limit(param.Count()).
 		Offset(param.Offset()).
 		PlaceholderFormat(sq.Dollar)
 
-	if param.StartDate != nil {
-		query = query.Where(sq.GtOrEq{"receptions.date_time": param.StartDate})
-	}
-	if param.EndDate != nil {
-		query = query.Where(sq.LtOrEq{"receptions.date_time": param.EndDate})
-	}
 	query = query.
-		InnerJoin("pvzs on receptions.pvz_id = pvzs.id").
+		InnerJoin("receptions on receptions.pvz_id = pvzs.id").
 		LeftJoin("products on products.reception_id = receptions.id")
 
 	res, err := exec.ScanALL[schema.PvzReceptionProduct](ctx, query, db)

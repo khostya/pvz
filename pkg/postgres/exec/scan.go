@@ -40,9 +40,12 @@ func ScanALL[T any](ctx context.Context, query sq.Sqlizer, db QueryEngine) ([]T,
 	if IsDuplicateKeyError(err) {
 		return nil, repoerr.ErrDuplicate
 	}
+	if err != nil {
+		return nil, err
+	}
 	if len(records) == 0 {
 		return nil, repoerr.ErrNotFound
 	}
 
-	return records, err
+	return records, nil
 }
