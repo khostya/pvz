@@ -60,6 +60,18 @@ func TestProduct_PostReceptions(t *testing.T) {
 			role: domain.UserRoleModerator,
 		},
 		{
+			name:   "forbidden",
+			input:  input,
+			status: http.StatusBadRequest,
+			res:    api.Error{Message: domain.ErrPreviousReceptionIsNotClosed.Error()},
+			mockFn: func(test test, m mocks) {
+				m.reception.EXPECT().Create(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(nil, domain.ErrPreviousReceptionIsNotClosed)
+			},
+			role: domain.UserRoleModerator,
+		},
+		{
 			name:   "role is not set",
 			input:  input,
 			status: http.StatusForbidden,

@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	api "github.com/khostya/pvz/internal/api/v1/http/server"
 	"github.com/khostya/pvz/internal/domain"
 	"github.com/khostya/pvz/internal/dto"
@@ -52,6 +53,9 @@ func (s Server) PostReceptions(eCtx echo.Context) error {
 	})
 	if isForbiddenErr(err) {
 		return WriteError(eCtx, http.StatusForbidden, err.Error())
+	}
+	if errors.Is(err, domain.ErrPreviousReceptionIsNotClosed) {
+		return WriteError(eCtx, http.StatusBadRequest, err.Error())
 	}
 	if err != nil {
 		return WriteError(eCtx, http.StatusInternalServerError, err.Error())
