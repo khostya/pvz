@@ -1,6 +1,7 @@
 package http
 
 import (
+	"errors"
 	api "github.com/khostya/pvz/internal/api/v1/http/server"
 	"github.com/khostya/pvz/internal/domain"
 	"github.com/khostya/pvz/internal/dto"
@@ -41,6 +42,9 @@ func (s Server) PostLogin(eCtx echo.Context) error {
 		Email:    string(body.Email),
 		Password: body.Password,
 	})
+	if isInvalidCredentials(err) {
+		return WriteError(eCtx, http.StatusUnauthorized, err.Error())
+	}
 	if err != nil {
 		return WriteError(eCtx, http.StatusInternalServerError, err.Error())
 	}
@@ -71,4 +75,8 @@ func (s Server) PostRegister(eCtx echo.Context) error {
 		Id:    &user.ID,
 		Role:  api.UserRole(user.Role),
 	})
+}
+
+func isInvalidCredentials(err error) bool {
+	return errors.Is(err, domain.ErrInvalidPassword) || errors.Is(err, domain.ErrUserNotFound)
 }

@@ -101,6 +101,17 @@ func TestProductUseCase_Create(t *testing.T) {
 			},
 		},
 		{
+			name:    "error get first reception by status",
+			input:   input,
+			wantErr: domain.ErrThereIsNoInProgressReception,
+			mockFn: func(ctx context.Context, test test, m productMocks) {
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(test.reception, repoerr.ErrNotFound)
+				runRepeatableReadAndUnwrap(m)
+			},
+		},
+		{
 			name:      "error create product",
 			input:     input,
 			reception: &domain.Reception{ID: uuid.New()},

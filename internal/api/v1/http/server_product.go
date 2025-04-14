@@ -57,6 +57,9 @@ func (s Server) PostPvzPvzIdDeleteLastProduct(eCtx echo.Context, pvzId openapi_t
 		PvzID:       pvzId,
 		DeleterRole: role,
 	})
+	if errors.Is(err, domain.ErrThereIsNoInProgressReception) || errors.Is(err, domain.ErrProductNotFound) {
+		return WriteError(eCtx, http.StatusBadRequest, err.Error())
+	}
 	if isForbiddenErr(err) {
 		return WriteError(eCtx, http.StatusForbidden, err.Error())
 	}

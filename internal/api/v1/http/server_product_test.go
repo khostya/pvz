@@ -182,6 +182,30 @@ func TestProduct_PostPvzPvzIdDeleteLastProduct(t *testing.T) {
 			},
 			role: domain.UserRoleModerator,
 		},
+		{
+			name:   "product not found",
+			input:  input,
+			status: http.StatusBadRequest,
+			res:    api.Error{Message: domain.ErrProductNotFound.Error()},
+			mockFn: func(test test, m mocks) {
+				m.reception.EXPECT().DeleteLastProduct(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(domain.ErrProductNotFound)
+			},
+			role: domain.UserRoleModerator,
+		},
+		{
+			name:   "not found reception with status in progress ",
+			input:  input,
+			status: http.StatusBadRequest,
+			res:    api.Error{Message: domain.ErrThereIsNoInProgressReception.Error()},
+			mockFn: func(test test, m mocks) {
+				m.reception.EXPECT().DeleteLastProduct(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(domain.ErrThereIsNoInProgressReception)
+			},
+			role: domain.UserRoleModerator,
+		},
 	}
 
 	for _, tt := range tests {

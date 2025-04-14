@@ -57,7 +57,7 @@ func (u *UseCase) Create(ctx context.Context, param dto.CreateProductParam) (*do
 	var product *domain.Product
 	err := u.tm.RunRepeatableRead(ctx, func(ctx context.Context) error {
 		reception, err := u.receptionRepo.GetFirstByStatusAndPVZId(ctx, domain.ReceptionStatusInProgress, param.PvzID)
-		if err != nil && errors.Is(err, repoerr.ErrNotFound) {
+		if errors.Is(err, repoerr.ErrNotFound) {
 			return domain.ErrThereIsNoInProgressReception
 		}
 

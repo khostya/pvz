@@ -182,6 +182,18 @@ func TestProduct_PvzPvzIdCloseLastReception(t *testing.T) {
 			},
 			role: domain.UserRoleModerator,
 		},
+		{
+			name:   "reception already closed",
+			input:  input,
+			status: http.StatusBadRequest,
+			res:    api.Error{Message: domain.ErrReceptionAlreadyClosed.Error()},
+			mockFn: func(test test, m mocks) {
+				m.reception.EXPECT().CloseLastReception(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(nil, domain.ErrReceptionAlreadyClosed)
+			},
+			role: domain.UserRoleModerator,
+		},
 	}
 
 	for _, tt := range tests {

@@ -17,12 +17,15 @@ func (s Server) PostPvzPvzIdCloseLastReception(eCtx echo.Context, pvzId openapi_
 
 	role, ok := appctx.EchoGetRole(eCtx)
 	if !ok {
-		return WriteError(eCtx, http.StatusForbidden, "role is not set")
+		return WriteError(eCtx, http.StatusForbidden, ErrRoleIsNotSet.Error())
 	}
 	reception, err := s.reception.CloseLastReception(ctx, dto.CloseLastReceptionParam{
 		PvzID:      pvzId,
 		CloserRole: role,
 	})
+	if errors.Is(err, domain.ErrReceptionAlreadyClosed) {
+		return WriteError(eCtx, http.StatusBadRequest, err.Error())
+	}
 	if isForbiddenErr(err) {
 		return WriteError(eCtx, http.StatusForbidden, err.Error())
 	}

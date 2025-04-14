@@ -179,6 +179,30 @@ func TestAuth_PostLogin(t *testing.T) {
 					Return(domain.Token(""), errOops)
 			},
 		},
+		{
+			name:   "invalid credentials user not found",
+			input:  input,
+			token:  "",
+			status: http.StatusUnauthorized,
+			res:    api.Error{Message: domain.ErrUserNotFound.Error()},
+			mockFn: func(test test, m mocks) {
+				m.auth.EXPECT().Login(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(domain.Token(""), domain.ErrUserNotFound)
+			},
+		},
+		{
+			name:   "invalid credentials incorrect password",
+			input:  input,
+			token:  "",
+			status: http.StatusUnauthorized,
+			res:    api.Error{Message: domain.ErrUserNotFound.Error()},
+			mockFn: func(test test, m mocks) {
+				m.auth.EXPECT().Login(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(domain.Token(""), domain.ErrUserNotFound)
+			},
+		},
 	}
 
 	for _, tt := range tests {

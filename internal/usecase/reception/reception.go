@@ -109,11 +109,17 @@ func (u *UseCase) DeleteLastProduct(ctx context.Context, param dto.DeleteLastRec
 
 	err := u.tm.RunRepeatableRead(ctx, func(ctx context.Context) error {
 		reception, err := u.receptionRepo.GetFirstByStatusAndPVZId(ctx, domain.ReceptionStatusInProgress, param.PvzID)
+		if errors.Is(err, repoerr.ErrNotFound) {
+			return domain.ErrThereIsNoInProgressReception
+		}
 		if err != nil {
 			return err
 		}
 
 		err = u.productRepo.DeleteLastByDateTimeAndReceptionID(ctx, reception.ID)
+		if errors.Is(err, repoerr.ErrNotFound) {
+			return domain.ErrProductNotFound
+		}
 		return err
 	})
 

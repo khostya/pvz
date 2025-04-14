@@ -292,6 +292,18 @@ func TestReceptionUseCase_DeleteLastReception(t *testing.T) {
 			},
 		},
 		{
+			name:      "error get first reception by status",
+			input:     input,
+			wantErr:   domain.ErrThereIsNoInProgressReception,
+			reception: &domain.Reception{ID: uuid.New()},
+			mockFn: func(test test, m receptionMocks) {
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(test.reception, repoerr.ErrNotFound)
+				runRepeatableReadAndUnwrap(m)
+			},
+		},
+		{
 			name:      "error delete last product by date time",
 			input:     input,
 			wantErr:   ErrReceptionOops,
@@ -303,6 +315,21 @@ func TestReceptionUseCase_DeleteLastReception(t *testing.T) {
 				m.productRepo.EXPECT().DeleteLastByDateTime(gomock.Any(), gomock.Any()).
 					Times(1).
 					Return(ErrReceptionOops)
+				runRepeatableReadAndUnwrap(m)
+			},
+		},
+		{
+			name:      "error product not found",
+			input:     input,
+			wantErr:   domain.ErrProductNotFound,
+			reception: &domain.Reception{ID: uuid.New()},
+			mockFn: func(test test, m receptionMocks) {
+				m.receptionRepo.EXPECT().GetFirstByStatusAndPVZId(gomock.Any(), gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(test.reception, nil)
+				m.productRepo.EXPECT().DeleteLastByDateTime(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(repoerr.ErrNotFound)
 				runRepeatableReadAndUnwrap(m)
 			},
 		},
