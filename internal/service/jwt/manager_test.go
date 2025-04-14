@@ -32,11 +32,10 @@ func TestManager_GenerateToken(t *testing.T) {
 	})
 
 	t.Run("ok token", func(t *testing.T) {
-		id := uuid.New()
 		token, err := manager.GenerateToken(user)
 		require.NoError(t, err)
 
-		assert(t, &id, domain.UserRoleEmployee, false, manager, token)
+		assert(t, &user.ID, domain.UserRoleEmployee, false, manager, token)
 	})
 }
 
