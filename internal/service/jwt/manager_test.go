@@ -9,7 +9,16 @@ import (
 	"time"
 )
 
-func TestManager(t *testing.T) {
+var (
+	user = &domain.User{
+		ID:       uuid.New(),
+		Email:    "411241",
+		Password: "3131",
+		Role:     domain.UserRoleEmployee,
+	}
+)
+
+func TestManager_GenerateToken(t *testing.T) {
 	manager := NewTokenManager(ManagerDeps{
 		AccessTTL:  time.Hour,
 		SigningKey: "13131",
@@ -24,12 +33,7 @@ func TestManager(t *testing.T) {
 
 	t.Run("ok token", func(t *testing.T) {
 		id := uuid.New()
-		token, err := manager.GenerateToken(&domain.User{
-			ID:       id,
-			Email:    "411241",
-			Password: "3131",
-			Role:     domain.UserRoleEmployee,
-		})
+		token, err := manager.GenerateToken(user)
 		require.NoError(t, err)
 
 		assert(t, &id, domain.UserRoleEmployee, false, manager, token)

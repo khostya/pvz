@@ -72,15 +72,6 @@ func (m *Manager) sign(jwtToken *jwt.Token) (domain.Token, error) {
 	return domain.Token(token), nil
 }
 
-func (m *Manager) ParseHeader(ctx context.Context, header string) (context.Context, error) {
-	token, err := getToken(header)
-	if err != nil {
-		return nil, err
-	}
-
-	return m.ParseToken(ctx, token)
-}
-
 func (m *Manager) ParseToken(ctx context.Context, token string) (context.Context, error) {
 	claims, err := m.parse(token)
 	if err != nil {

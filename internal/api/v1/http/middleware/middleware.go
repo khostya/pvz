@@ -14,13 +14,14 @@ import (
 )
 
 var (
-	ErrNoAuthHeader      = errors.New("authorization header is missing")
-	ErrInvalidAuthHeader = errors.New("authorization header is malformed")
+	ErrNoAuthHeader = errors.New("authorization header is missing")
+	ErrInvalidToken = errors.New("token format is invalid. Expected: Bearer <token>")
 )
 
 type manager interface {
 	ParseToken(ctx context.Context, token string) (context.Context, error)
 }
+
 type Authenticator struct {
 	manager manager
 }
@@ -51,16 +52,22 @@ func CreateValidatorMiddleware(authenticator *Authenticator) (echo.MiddlewareFun
 	return validator, nil
 }
 
-func getJWSFromRequest(req *http.Request) (string, error) {
+func getJWTFromRequest(req *http.Request) (string, error) {
 	authHdr := req.Header.Get(echo.HeaderAuthorization)
 	if authHdr == "" {
 		return "", ErrNoAuthHeader
 	}
 	prefix := "Bearer "
 	if !strings.HasPrefix(authHdr, prefix) {
-		return "", ErrInvalidAuthHeader
+		return "", ErrInvalidToken
 	}
-	return strings.TrimPrefix(authHdr, prefix), nil
+
+	authHdr = strings.TrimPrefix(authHdr, prefix)
+	if strings.Count(authHdr, " ") != 0 {
+		return "", ErrInvalidToken
+	}
+
+	return authHdr, nil
 }
 
 func authenticate(auth manager, ctx context.Context, input *openapi3filter.AuthenticationInput) error {
@@ -68,7 +75,7 @@ func authenticate(auth manager, ctx context.Context, input *openapi3filter.Authe
 		return fmt.Errorf("security scheme %s != 'BearerAuth'", input.SecuritySchemeName)
 	}
 
-	jws, err := getJWSFromRequest(input.RequestValidationInput.Request)
+	jws, err := getJWTFromRequest(input.RequestValidationInput.Request)
 	if err != nil {
 		return fmt.Errorf("getting jws: %w", err)
 	}
