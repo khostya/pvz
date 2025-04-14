@@ -67,15 +67,12 @@ func (r ProductRepo) DeleteLastByDateTimeAndReceptionID(ctx context.Context, rec
 		OrderBy("p.date_time desc").
 		Limit(1)
 
-	lastProductByCreatedAtSQL, args, err := lastProductByCreatedAt.ToSql()
-	if err != nil {
-		return err
-	}
+	lastProductByCreatedAtSQL, args := lastProductByCreatedAt.MustSql()
 
 	query := sq.Delete(schema.Product{}.TableName()).
 		Where(fmt.Sprintf("id = (%s)", lastProductByCreatedAtSQL), args...).
 		PlaceholderFormat(sq.Dollar)
 
-	err = exec.Delete(ctx, query, db)
+	err := exec.Delete(ctx, query, db)
 	return err
 }
